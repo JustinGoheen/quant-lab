@@ -1,0 +1,3 @@
+
+keras_autodoc @ git+https://github.com/JustinGoheen/keras-autodoc-community.git
+mkdocs-material

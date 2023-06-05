@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: lastName
+    given-names: firstName
+  - name: "FirstName LastName"
+title: "lightning_quant"
+version: 0.0.1
+date-released: 2022-08-06
+license: "Apache-2.0"
+repository-code: ""
+keywords:
+  - machine learning
+  - deep learning
+  - artificial intelligence

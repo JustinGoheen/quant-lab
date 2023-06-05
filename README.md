@@ -55,6 +55,16 @@ The instructions shown above will install the base requirements, those requireme
 
 To install the Cython version of TA-Lib, you must first install the SWIG version. See [the notes](https://github.com/ta-lib/ta-lib-python#dependencies) in the Cython version for installation instructions.
 
+## Using Lightning-Quant
+
+Lightning-Quant provides a CLI, `quant`.
+
+Currently you can use `quant` to fetch data from Alpaca Markets using the following in terminal:
+
+```bash
+quant fetch-data --key-YOUR-ALPACA-KEY --secret=YOUR-ALPACA-SECRET-KEY --symbol=SPY
+```
+
 ## Additional Resources
 
 ### PyTorch
