@@ -11,28 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import click
-
-from lightning_quant.core.fetch import FetchBars
-from lightning_quant.core.preprocessing import FeatureEngineer
-
-
-@click.group()
-def main() -> None:
-    pass
-
-
-@main.command("fetch-data")
-@click.option("--key")
-@click.option("--secret")
-@click.option("--symbols", default="SPY")
-def fetch_data(key, secret, symbols) -> None:
-    app = FetchBars(key, secret)
-    app.run(symbol_or_symbols=symbols)
-
-
-@main.command("make-features")
-def make_features() -> None:
-    app = FeatureEngineer()
-    app.run()

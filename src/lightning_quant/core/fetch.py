@@ -14,6 +14,7 @@
 
 import datetime
 import os
+from zoneinfo import ZoneInfo
 from typing import List, Optional, Union
 
 from alpaca.data import StockHistoricalDataClient
@@ -30,6 +31,7 @@ class FetchBars:
         self,
         symbol_or_symbols: Union[str, List],
         datadir: Optional[str] = "data",
+        timezone: str = "US/Eastern",
         **kwargs,
     ):
         """
@@ -50,7 +52,9 @@ class FetchBars:
             data = self.client.get_stock_bars(request)
 
             while not progress.finished:
-                progress.update(task, advance=0.1)
+                progress.update(task, advance=1)
 
-            datapath = os.path.join(os.getcwd(), datadir, f"market_data_{str(datetime.datetime.now())}.pq")
+            dt = str(datetime.datetime.now().astimezone(tz=ZoneInfo(timezone))).replace(" ", "_")
+            fname = f"market_data_{dt}.pq"
+            datapath = os.path.join(os.getcwd(), datadir, fname)
             data.df.to_parquet(datapath)
