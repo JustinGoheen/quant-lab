@@ -62,9 +62,8 @@ def rolling_rank(series, period=252):
 
 def strategy_metrics(returns):
     data = returns.copy()
-    # data.index = pd.to_datetime(data.index)
-
     metrics = qs.reports.metrics(data, display=False).T
     metrics.rename(columns={"CAGR﹪": "CAGR", "Sortino/√2": "Adjusted Sortino"}, inplace=True)
-
+    metrics = metrics.to_dict()
+    metrics = {k: metrics[k]["Strategy"] for k in metrics}
     return metrics

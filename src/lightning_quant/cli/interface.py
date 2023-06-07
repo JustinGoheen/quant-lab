@@ -39,7 +39,7 @@ def make_features() -> None:
     app.run()
 
 
-@main.command("make-labels")
-def make_labels() -> None:
+@main.command("run-bfo")
+def run_bfo() -> None:
     app = BruteForceOptimizer()
     app.run()

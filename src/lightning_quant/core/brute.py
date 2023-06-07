@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import os
 from datetime import datetime
 from itertools import product
@@ -48,8 +49,6 @@ class BruteForceOptimizer:
         self.price_column = price_column
         self.resultsdir = resultsdir
 
-        self.results = pd.DataFrame(columns=["Fast", "Slow", "CAGR", "Sharpe", "Drawdown", "Returns"])
-
         rawpath = os.path.join(os.getcwd(), rawdatadir)
         self.rawdata = pd.read_parquet(rawpath, columns=[self.price_column])
         self.rawdata.reset_index(inplace=True)
@@ -65,12 +64,15 @@ class BruteForceOptimizer:
     ):
         rprint(f"[{datetime.now().time()}] STARTING BFO")
 
+        results = []
+
         fast_range = range(10, 51, 1)
         slow_range = range(50, 125, 1)
 
         with Progress() as progress:
             task = progress.add_task("BRUTE FORCE OPTIMIZATION", total=len(fast_range) * len(slow_range))
 
+            sentinel = 0
             for fast, slow in product(fast_range, slow_range):
                 testdata = self.rawdata.copy()
                 if fast != slow:  # account for 50, 50 overlap
@@ -80,7 +82,9 @@ class BruteForceOptimizer:
                     testdata["strategy_returns"] = testdata["position"] * testdata["returns"]  # do not shift position
                     testdata.dropna(inplace=True)
                     metrics = strategy_metrics(testdata["strategy_returns"])
+
                     payload = {
+                        "Trial": sentinel,
                         "Fast": fast,
                         "Slow": slow,
                         "CAGR": metrics["CAGR"],
@@ -88,30 +92,39 @@ class BruteForceOptimizer:
                         "Drawdown": metrics["Max Drawdown"],
                         "Returns": np.exp(testdata["strategy_returns"].sum()),
                     }
-                    self.results = pd.concat(
-                        [
-                            self.results,
-                            pd.DataFrame(payload),
-                        ],
-                    )
+
+                    results.append(payload)
+
                     rprint(
-                        f"[{datetime.now().time()}]: Fast: {fast} Slow: {slow} CAGR: {metrics['CAGR'].iloc[0]} DD: {metrics['Max Drawdown'].iloc[0]}"  # noqa: E501
+                        f"[{datetime.now().time()}]: Fast: {fast} Slow: {slow} CAGR: {metrics['CAGR']} DD: {metrics['Max Drawdown']}"  # noqa: E501
                     )
+
+                    if sentinel == 0:
+                        best_returns = payload["Returns"]
+                        best = payload
+                    else:
+                        if payload["Returns"] > best_returns:
+                            best_returns = payload["Returns"]
+                            best = payload
+
+                    sentinel += 1
 
                     progress.advance(task)
 
-        self.results = self.results.loc[self.results["Drawdown"] >= self.max_drawdown, :]
-        self.results.sort_values("Returns", ascending=False, inplace=True)
+        results = pd.DataFrame(results).set_index("Trial")
+        results = results.loc[results["Drawdown"] >= self.max_drawdown, :]
+        results = results.loc[results["Returns"] >= 1.0, :]
+        results.sort_values("Returns", ascending=False, inplace=True)
 
         dt = str(datetime.now().astimezone(tz=ZoneInfo(timezone))).replace(" ", "_")
-        resultsfname = os.path.join(self.resultsdir, f"results_{dt}.pq")
-        self.results.to_csv(resultsfname)
+        resultsfname = os.path.join(self.resultsdir, f"results_{dt}.csv")
+        results.to_csv(resultsfname)
 
-        best = self.results.iloc[0]
-        best = pd.DataFrame(best).T
-        bestfname = os.path.join(self.resultsdir, f"best_{dt}.pq")
-        best.to_parquet(bestfname)
+        bestfname = os.path.join(self.resultsdir, f"best_{dt}.json")
+
+        with open(bestfname, "w") as bestcfg:
+            json.dump(best, bestcfg, indent=4)
 
         rprint(
-            f"[{datetime.now().time()}] BFO RESULTS: CAGR {best['CAGR'].iloc[0]}, DD {best['Drawdown'].iloc[0]}, Fast {best['Fast'].iloc[0]}, Slow {best['Slow'].iloc[0]}"  # noqa: E501
+            f"[{datetime.now().time()}] BFO RESULTS: CAGR {best['CAGR']}, DD {best['Drawdown']}, Fast {best['Fast']}, Slow {best['Slow']}"  # noqa: E501
         )
