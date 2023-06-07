@@ -14,8 +14,9 @@
 
 import click
 
+from lightning_quant.core.brute import BruteForceOptimizer
+from lightning_quant.core.features import FeatureEngineer
 from lightning_quant.core.fetch import FetchBars
-from lightning_quant.core.preprocessing import FeatureEngineer
 
 
 @click.group()
@@ -35,4 +36,10 @@ def fetch_data(key, secret, symbols) -> None:
 @main.command("make-features")
 def make_features() -> None:
     app = FeatureEngineer()
+    app.run()
+
+
+@main.command("make-labels")
+def make_labels() -> None:
+    app = BruteForceOptimizer()
     app.run()

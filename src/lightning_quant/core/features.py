@@ -12,24 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import datetime
+import os
 from typing import List
 from zoneinfo import ZoneInfo
 
-import pandas as pd
 from pyarrow import parquet as pq
 from rich import print as rprint
 from rich.progress import Progress
 
-
 from lightning_quant.core.factors import (
-    expanding_rank,
-    normalized_average_true_range,
-    log_returns,
-    relative_strength_index,
     aroon_oscillator,
+    expanding_rank,
+    log_returns,
+    normalized_average_true_range,
     rate_of_change,
+    relative_strength_index,
 )
 
 
@@ -71,7 +69,7 @@ class FeatureEngineer:
         self.slow_window = 50
 
     def _locate_raw_data(self):
-        raw_data = [i for i in os.listdir(self.rawdir) if i.startswith("")]
+        [i for i in os.listdir(self.rawdir) if i.startswith("")]
 
     def run(
         self,
@@ -87,7 +85,7 @@ class FeatureEngineer:
         rprint(f"[{datetime.datetime.now().time()}] STARTING PRE PROCESSING")
 
         with Progress() as progress:
-            task = progress.add_task(f"PROCESSING DATA", total=100)
+            task = progress.add_task("PROCESSING DATA", total=100)
 
             for symbol in self.symbols:
                 # filter data to symbol
@@ -114,11 +112,13 @@ class FeatureEngineer:
                     batch[f"{symbol.upper()}_VWAP_RANK"] = expanding_rank(batch["vwap"])
 
                 batch.drop(["open", "high", "low", "close"], axis=1, inplace=True)
+                batch.dropna(inplace=True)
+                batch.index = batch.index.date
 
                 dt = str(datetime.datetime.now().astimezone(tz=ZoneInfo(timezone))).replace(" ", "_")
                 fname = f"{symbol.upper()}_{dt}.pq"
                 featurespath = os.path.join(self.featuresdir, fname)
-                # drop null values
+                # drop null values and save
                 batch.dropna().to_parquet(featurespath)
 
             while not progress.finished:
