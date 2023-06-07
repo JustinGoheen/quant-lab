@@ -17,6 +17,7 @@ import click
 from lightning_quant.core.brute import BruteForceOptimizer
 from lightning_quant.core.features import FeatureEngineer
 from lightning_quant.core.fetch import FetchBars
+from lightning_quant.core.labels import LabelMaker
 
 
 @click.group()
@@ -42,4 +43,10 @@ def make_features() -> None:
 @main.command("run-bfo")
 def run_bfo() -> None:
     app = BruteForceOptimizer()
+    app.run()
+
+
+@main.command("make-labels")
+def make_labels() -> None:
+    app = LabelMaker()
     app.run()
