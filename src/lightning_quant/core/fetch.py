@@ -14,8 +14,8 @@
 
 import datetime
 import os
-from zoneinfo import ZoneInfo
 from typing import List, Optional, Union
+from zoneinfo import ZoneInfo
 
 from alpaca.data import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
@@ -36,7 +36,8 @@ class FetchBars:
     ):
         """
         Notes:
-            StockBarsRequest: https://alpaca.markets/docs/python-sdk/api_reference/data/stock/requests.html#stockbarsrequest
+            StockBarsRequest:
+            - https://alpaca.markets/docs/python-sdk/api_reference/data/stock/requests.html#stockbarsrequest
         """
         five_years_ago_today = datetime.datetime.now() - datetime.timedelta(days=5 * 365)
 

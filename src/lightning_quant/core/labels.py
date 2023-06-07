@@ -62,6 +62,7 @@ class LabelMaker:
             task = progress.add_task("GENERATING LABELS", total=100)
             self.data["fast"] = self.data[self.close].rolling(self.fast).mean()
             self.data["slow"] = self.data[self.close].rolling(self.slow).mean()
+            self.data.dropna(inplace=True)
             self.data["position"] = self.data["fast"] >= self.data["slow"]
 
             labels = self.data[["position"]]

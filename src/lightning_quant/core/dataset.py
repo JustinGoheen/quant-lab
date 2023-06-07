@@ -12,16 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pandas as pd
+import torch
+from torch.utils.data import Dataset
 
-# class PodDataset(Dataset):
-#     def __init__(self, datadir: str = "data/features", labelname):
-#         self.datadir = os.path.join(os.getcwd(), datadir)
-#         self.features = pd.read_csv(features_path)
-#         self.labels = pd.read_csv(labels_path)
 
-#     def __len__(self):
-#         return len(self.labels)
+class MarketDataset(Dataset):
+    def __init__(self, featuresdir: str = "data/features", labelsdir: str = "data/labels", labelcol: str = "position"):
+        features = pd.read_parquet(featuresdir)
+        labels = pd.read_parquet(labelsdir)
+        self.data = labels.merge(features, on="timestamp")
+        self.data.drop(["symbol", "vwap"], axis=1, inplace=True)
+        self.data.dropna(inplace=True)
+        self.labelcol = labelcol
+        self.featurecols = [i for i in self.data.columns if i != self.labelcol]
+        super().__init__()
 
-#     def __getitem__(self, idx):
-#         x, y = self.features.iloc[idx], self.labels.iloc[idx]
-#         return torch.tensor(x, dtype=torch.float32), torch.tensor(y, dtype=torch.float32)
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        x, y = self.data[self.featurecols].iloc[idx], self.data[self.labelcol].iloc[idx]
+        return torch.tensor(x, dtype=torch.float16), torch.tensor(y, dtype=torch.float16)
