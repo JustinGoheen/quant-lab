@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License. -->
 
-Trading agents built with [Lightning AI](https://lightning.ai/)'s ecosystem projects like Nixtla's [neuralforecast](https://github.com/Nixtla/neuralforecast) and Eclectic Sheep's [SheepRL](https://github.com/Eclectic-Sheep/sheeprl), and Alpaca Markets' [alpaca-py](https://alpaca.markets/docs/python-sdk/).
+Trading agents built with [Lightning AI](https://lightning.ai/) ecosystem projects like Nixtla's [neuralforecast](https://github.com/Nixtla/neuralforecast) and Eclectic Sheep's [SheepRL](https://github.com/Eclectic-Sheep/sheeprl).
 
 [SPY](https://www.google.com/finance/quote/SPY:NYSEARCA?sa=X&ved=2ahUKEwjQ-MKp5az_AhV2mYQIHXfxCu4Q3ecFegQIJRAX) (S&P 500) is used in examples.
 
