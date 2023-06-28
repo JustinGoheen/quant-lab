@@ -30,7 +30,7 @@ class FetchBars:
     def run(
         self,
         symbol_or_symbols: Union[str, List],
-        datadir: Optional[str] = "data",
+        datadir: Optional[str] = "data/raw",
         timezone: str = "US/Eastern",
         **kwargs,
     ):

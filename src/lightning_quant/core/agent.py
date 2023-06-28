@@ -15,21 +15,20 @@
 from typing import List, Union
 
 from lightning_quant.core.brute import BruteForceOptimizer
-from lightning_quant.core.features import FeatureEngineer
-from lightning_quant.core.fetch import FetchBars
-from lightning_quant.core.labels import LabelEngineer
+from lightning_quant.data.features import FeatureEngineer
+from lightning_quant.data.fetch import FetchBars
+from lightning_quant.data.labels import LabelEngineer
 
 
 class QuantAgent:
     def __init__(self, key: str, secret: str, symbols: Union[str, List]) -> None:
-        self.fetchbars = FetchBars(key, secret)
-        self.featureengineer = FeatureEngineer()
-        self.bfo = BruteForceOptimizer()
-        self.labelengineer = LabelEngineer()
+        self.key = key
+        self.secret = secret
         self.symbols = symbols
 
     def run(self):
-        self.fetchbars.run(symbol_or_symbols=self.symbols)
-        self.featureengineer.run()
-        self.bfo.run()
-        self.labelengineer.run()
+        fetchbars = FetchBars(self.key, self.secret)
+        fetchbars.run(symbol_or_symbols=self.symbols)
+        FeatureEngineer().run()
+        BruteForceOptimizer().run()
+        LabelEngineer().run()

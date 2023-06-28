@@ -11,10 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import lightning as L
-
-
-class QuantTrainer(L.Trainer):
-    def __init__(self, model, datamodule):
-        super().__init__()

@@ -18,7 +18,7 @@ import multiprocessing
 from lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset, random_split
 
-from lightning_quant.core.dataset import MarketDataset
+from lightning_quant.data import MarketDataset
 
 NUMWORKERS = int(multiprocessing.cpu_count() // 2)
 

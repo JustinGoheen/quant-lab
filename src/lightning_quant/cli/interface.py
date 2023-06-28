@@ -16,9 +16,9 @@ import os
 import click
 
 from lightning_quant.core.brute import BruteForceOptimizer
-from lightning_quant.core.features import FeatureEngineer
-from lightning_quant.core.fetch import FetchBars
-from lightning_quant.core.labels import LabelEngineer
+from lightning_quant.data.features import FeatureEngineer
+from lightning_quant.data.fetch import FetchBars
+from lightning_quant.data.labels import LabelEngineer
 from lightning_quant.core.agent import QuantAgent
 from dotenv import load_dotenv
 
