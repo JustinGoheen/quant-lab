@@ -12,12 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import click
 
 from lightning_quant.core.brute import BruteForceOptimizer
 from lightning_quant.core.features import FeatureEngineer
 from lightning_quant.core.fetch import FetchBars
-from lightning_quant.core.labels import LabelMaker
+from lightning_quant.core.labels import LabelEngineer
+from lightning_quant.core.agent import QuantAgent
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 @click.group()
@@ -25,28 +30,42 @@ def main() -> None:
     pass
 
 
-@main.command("fetch-data")
-@click.option("--key")
-@click.option("--secret")
+@main.group("run")
+def run():
+    pass
+
+
+@run.command("fetch-data")
+@click.option("--key", default=os.environ["API_KEY"])
+@click.option("--secret", default=os.environ["SECRET_KEY"])
 @click.option("--symbols", default="SPY")
 def fetch_data(key, secret, symbols) -> None:
     app = FetchBars(key, secret)
     app.run(symbol_or_symbols=symbols)
 
 
-@main.command("make-features")
+@run.command("make-features")
 def make_features() -> None:
     app = FeatureEngineer()
     app.run()
 
 
-@main.command("run-bfo")
+@run.command("bfo")
 def run_bfo() -> None:
     app = BruteForceOptimizer()
     app.run()
 
 
-@main.command("make-labels")
+@run.command("make-labels")
 def make_labels() -> None:
-    app = LabelMaker()
+    app = LabelEngineer()
     app.run()
+
+
+@run.command("agent")
+@click.option("--key", default=os.environ["API_KEY"])
+@click.option("--secret", default=os.environ["SECRET_KEY"])
+@click.option("--symbols", default="SPY")
+def agent(key, secret, symbols):
+    agent = QuantAgent(key, secret, symbols)
+    agent.run()

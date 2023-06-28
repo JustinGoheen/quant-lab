@@ -37,7 +37,7 @@ def read_results(resultspath):
     return results
 
 
-class LabelMaker:
+class LabelEngineer:
     def __init__(
         self,
         rawdir: str = "data/raw/",
