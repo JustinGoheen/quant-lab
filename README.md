@@ -56,7 +56,7 @@ Then, install an editable version of lightning-quant with:
 
 > **Note**
 >
-> ensure your venv or conda env is activate before proceeding
+> ensure your venv or conda env is activated before proceeding
 
 > **Note**
 >
@@ -111,19 +111,29 @@ pip install TA-lib
 
 ## Using Lightning-Quant
 
-Lightning-Quant provides a CLI, `quant`.
+Lightning-Quant provides a CLI, `quant`. The available commands for `quant` are shown below.
 
-Currently you can use `quant` to fetch data from Alpaca Markets using the following in terminal:
+![](docs/assets/lightning-quant-run.png)
+
+You can use `quant` to fetch data from Alpaca Markets using the following in terminal:
 
 ```sh
-quant fetch-data --key-YOUR-ALPACA-KEY --secret=YOUR-ALPACA-SECRET-KEY --symbol=SPY
+quant run fetch-data --key-YOUR-ALPACA-KEY --secret=YOUR-ALPACA-SECRET-KEY --symbol=SPY
 ```
 
 Alternatively, you can create a .env file and lightning-quant will automatically load the provided environment variables for you. And then use the following in terminal:
 
 ```sh
-quant fetch-data --symbol=SPY
+quant run fetch-data --symbol=SPY
 ```
+
+To run data acquisition, feature engineering, brute force optimization, and label generation at one time, do:
+
+```sh
+quant run agent
+```
+
+![](docs/assets/agent-run.gif)
 
 ## Additional Resources
 
