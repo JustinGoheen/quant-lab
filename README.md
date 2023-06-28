@@ -92,7 +92,7 @@ The instructions shown above will install the base requirements, those requireme
 - [TorchMetrics](https://torchmetrics.readthedocs.io/en/stable/)
 - [Weights and Biases](https://docs.wandb.ai/guides): Experiment Manager
 - [alpaca-py](https://alpaca.markets/docs/python-sdk/): Alpaca Markets Python API
-- [neuralforecast](https://github.com/Nixtla/neuralforecast): neural forecasting models focused by Nixtla
+- [neuralforecast](https://github.com/Nixtla/neuralforecast): neural forecasting models created by Nixtla
 - [Ploty](https://plotly.com/python/): Data Visualization
 - [Typer](https://typer.tiangolo.com): Command Line Interfaces
 
