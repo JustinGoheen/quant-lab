@@ -121,8 +121,6 @@ To run data acquisition, feature engineering, brute force optimization, and labe
 quant run agent --key-YOUR-ALPACA-KEY --secret=YOUR-ALPACA-SECRET-KEY --symbol=SPY
 ```
 
-![](docs/assets/agent-run.gif)
-
 Alternatively, you can create a .env file and lightning-quant will automatically load the provided environment variables for you. And then use the following in terminal:
 
 ```sh
@@ -132,6 +130,8 @@ quant run agent --symbol=SPY
 > **Warning**
 >
 > do not commit your .env files to GitHub
+
+![](docs/assets/agent-run.gif)
 
 ## Additional Resources
 
