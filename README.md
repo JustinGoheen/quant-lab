@@ -14,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License. -->
 
-Lightning Quant is a library for algorithmic trading agents built with [Lightning AI](https://lightning.ai/) ecosystem projects like Nixtla's [neuralforecast](https://github.com/Nixtla/neuralforecast) and Eclectic Sheep's [SheepRL](https://github.com/Eclectic-Sheep/sheeprl). [Alpaca Markets](https://alpaca.markets/) is used to fetch the historical data for the exercise. Lightning's Pytorch Lightning and Lightning Fabric are agnostic to the market broker and data source. One needs only to acquire and preprocess the desired market data and then construct the requisite PyTorch DataLoaders and LightningDataModule for the PyTorch Lightning or Lightning Fabric Trainer that will be using in conjunction with the bespoke PyTorch model, a SheepRL algorithm, or a neuralforecast model.
+Lightning Quant is a library for algorithmic trading agents built with [Lightning AI](https://lightning.ai/) ecosystem projects like Nixtla's [neuralforecast](https://github.com/Nixtla/neuralforecast) and Eclectic Sheep's [SheepRL](https://github.com/Eclectic-Sheep/sheeprl). [Alpaca Markets](https://alpaca.markets/) is used to fetch the historical data for the exercise.
+
+Lightning's Pytorch Lightning and Lightning Fabric are agnostic to the market broker and data source. One needs only to acquire and preprocess the desired market data and then construct the requisite PyTorch DataLoaders and LightningDataModule for the PyTorch Lightning or Lightning Fabric Trainer that will be using in conjunction with the bespoke PyTorch model, a SheepRL algorithm, or a neuralforecast model.
 
 [SPY](https://www.google.com/finance/quote/SPY:NYSEARCA?sa=X&ved=2ahUKEwjQ-MKp5az_AhV2mYQIHXfxCu4Q3ecFegQIJRAX) (S&P 500) is used in examples.
 
@@ -127,11 +129,18 @@ Alternatively, you can create a .env file and lightning-quant will automatically
 quant run agent --symbol=SPY
 ```
 
+![](docs/assets/agent-run.gif)
+
 > **Warning**
 >
 > do not commit your .env files to GitHub
 
-![](docs/assets/agent-run.gif)
+The contents of your `.env` file should be:
+
+```txt
+API_KEY=YOUR_API_KEY
+SECRET_KEY=YOUR_SECRET_KEY
+```
 
 ## Additional Resources
 
