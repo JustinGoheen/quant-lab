@@ -16,13 +16,13 @@
 
 Lightning Quant is a library for algorithmic trading agents built with [Lightning AI](https://lightning.ai/) ecosystem projects like Nixtla's [neuralforecast](https://github.com/Nixtla/neuralforecast) and Eclectic Sheep's [SheepRL](https://github.com/Eclectic-Sheep/sheeprl). [Alpaca Markets](https://alpaca.markets/) is used to fetch the historical data for the exercise.
 
-Lightning's Pytorch Lightning and Lightning Fabric are agnostic to the market broker and data source. One needs only to acquire and preprocess the desired market data and then construct the requisite PyTorch DataLoaders and LightningDataModule for the PyTorch Lightning or Lightning Fabric Trainer that will be using in conjunction with the bespoke PyTorch model, a SheepRL algorithm, or a neuralforecast model.
+Lightning AI's PyTorch Lightning and Lightning Fabric are agnostic to the market broker and data source. One needs only to acquire and preprocess the desired market data and then construct the requisite PyTorch DataLoaders and LightningDataModule for the PyTorch Lightning Trainer or Lightning Fabric training loop that will be used with the bespoke PyTorch model, a SheepRL algorithm, or a neuralforecast model.
 
 [SPY](https://www.google.com/finance/quote/SPY:NYSEARCA?sa=X&ved=2ahUKEwjQ-MKp5az_AhV2mYQIHXfxCu4Q3ecFegQIJRAX) (S&P 500) is used in examples.
 
 ## Setup
 
-First, fork then clone the repo. After cloning the repo to your machine, do the following in terminal:
+First – fork, then clone the repo. After cloning the repo to your machine, do the following in terminal to navigate to your clone:
 
 ```sh
 cd {{ path to clone }}
@@ -56,6 +56,9 @@ conda activate lit-quant
 
 Then, install an editable version of lightning-quant with:
 
+```sh
+pip install -e .
+```
 > **Note**
 >
 > ensure your venv or conda env is activated before proceeding
@@ -63,10 +66,6 @@ Then, install an editable version of lightning-quant with:
 > **Note**
 >
 > the example uses pip regardless of if you've created your env with venv or conda
-
-```sh
-pip install -e .
-```
 
 > **Note**
 >
