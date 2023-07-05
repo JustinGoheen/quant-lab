@@ -16,7 +16,7 @@
 import multiprocessing
 
 from lightning import LightningDataModule
-from torch.utils.data import DataLoader, Dataset, random_split
+from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 
 from lightning_quant.data import MarketDataset
 
@@ -29,19 +29,18 @@ class MarketDataModule(LightningDataModule):
         dataset: Dataset = MarketDataset,
         featuresdir: str = "data/features",
         labelsdir: str = "data/labels",
-        split: bool = True,
         train_size: float = 0.8,
         num_workers: int = NUMWORKERS,
         labelcol: str = "position",
     ):
         super().__init__()
         self.dataset = dataset
-        self.split = split
         self.train_size = train_size
         self.num_workers = num_workers
         self.featuresdir = featuresdir
         self.labelsdir = labelsdir
         self.labelcol = labelcol
+        self.sampler = None
 
     def prepare_data(self):
         self.dataset(featuresdir=self.featuresdir, labelsdir=self.labelsdir, labelcol=self.labelcol)
@@ -50,15 +49,15 @@ class MarketDataModule(LightningDataModule):
         if stage == "fit" or stage is None:
             train_size = int(len(self.dataset) * self.train_size)
             test_size = len(self.dataset) - train_size
-            self.train_data, self.val_data = random_split(self.dataset, lengths=[train_size, test_size])
+            self.sampler = WeightedRandomSampler(self.dataset, lengths=[train_size, test_size])
         if stage == "test" or stage is None:
             self.test_data = self.val_data
 
     def train_dataloader(self):
-        return DataLoader(self.train_data, num_workers=self.num_workers, shuffle=False)
+        return DataLoader(self.train_data, num_workers=self.num_workers, shuffle=False, sampler=self.sampler)
+
+    def val_dataloader(self):
+        return DataLoader(self.val_data, num_workers=self.num_workers, shuffle=False, sampler=self.sampler)
 
     def test_dataloader(self):
         return DataLoader(self.test_data, num_workers=self.num_workers, shuffle=False)
-
-    def val_dataloader(self):
-        return DataLoader(self.val_data, num_workers=self.num_workers, shuffle=False)

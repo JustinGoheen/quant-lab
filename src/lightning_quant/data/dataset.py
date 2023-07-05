@@ -19,13 +19,17 @@ from torch.utils.data import Dataset
 
 class MarketDataset(Dataset):
     def __init__(self, featuresdir: str = "data/features", labelsdir: str = "data/labels", labelcol: str = "position"):
-        features = pd.read_parquet(featuresdir)
-        labels = pd.read_parquet(labelsdir)
-        self.data = labels.merge(features, on="timestamp")
+        featuresdir: str = "data/features"
+        labelsdir: str = "data/labels"
+        features = pd.read_parquet(featuresdir).reset_index()
+        labels = pd.read_parquet(labelsdir).reset_index()
+        self.data = labels.merge(features, on="index")
         self.data.drop(["symbol", "vwap"], axis=1, inplace=True)
         self.data.dropna(inplace=True)
+        self.data.set_index("index", inplace=True)
         self.labelcol = labelcol
         self.featurecols = [i for i in self.data.columns if i != self.labelcol]
+        self.labelweights = self.data[self.labelcol].value_counts()
         super().__init__()
 
     def __len__(self):

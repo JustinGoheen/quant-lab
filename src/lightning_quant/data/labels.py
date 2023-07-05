@@ -66,6 +66,7 @@ class LabelEngineer:
             self.data["position"] = self.data["fast"] >= self.data["slow"]
 
             labels = self.data[["position"]]
+            labels.index = labels.index.date
 
             dt = str(datetime.now().astimezone(tz=ZoneInfo(self.timezone))).replace(" ", "_")
             fname = os.path.join(os.getcwd(), self.labeldir, f"{self.symbol.upper()}_{dt}.pq")
