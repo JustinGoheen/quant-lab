@@ -37,13 +37,13 @@ class MarketDataModule(LightningDataModule):
         self.dataset = dataset
         self.train_size = train_size
         self.num_workers = num_workers
-        self.featuresdir = featuresdir
-        self.labelsdir = labelsdir
+        self.featurespath = featuresdir
+        self.labelspath = labelsdir
         self.labelcol = labelcol
         self.sampler = None
 
     def prepare_data(self):
-        self.dataset(featuresdir=self.featuresdir, labelsdir=self.labelsdir, labelcol=self.labelcol)
+        self.dataset(featuresdir=self.featurespath, labelsdir=self.labelspath, labelcol=self.labelcol)
 
     def setup(self, stage=None):
         if stage == "fit" or stage is None:

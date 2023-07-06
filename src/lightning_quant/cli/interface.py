@@ -13,14 +13,11 @@
 # limitations under the License.
 
 import os
-import click
 
-from lightning_quant.core.brute import BruteForceOptimizer
-from lightning_quant.data.features import FeatureEngineer
-from lightning_quant.data.fetch import FetchBars
-from lightning_quant.data.labels import LabelEngineer
-from lightning_quant.core.agent import QuantAgent
+import click
 from dotenv import load_dotenv
+
+from lightning_quant.core.agent import QuantAgent
 
 load_dotenv()
 
@@ -35,37 +32,14 @@ def run():
     pass
 
 
-@run.command("fetch-data")
-@click.option("--key", default=os.environ["API_KEY"])
-@click.option("--secret", default=os.environ["SECRET_KEY"])
-@click.option("--symbols", default="SPY")
-def fetch_data(key, secret, symbols) -> None:
-    app = FetchBars(key, secret)
-    app.run(symbol_or_symbols=symbols)
-
-
-@run.command("make-features")
-def make_features() -> None:
-    app = FeatureEngineer()
-    app.run()
-
-
-@run.command("bfo")
-def run_bfo() -> None:
-    app = BruteForceOptimizer()
-    app.run()
-
-
-@run.command("make-labels")
-def make_labels() -> None:
-    app = LabelEngineer()
-    app.run()
-
-
 @run.command("agent")
 @click.option("--key", default=os.environ["API_KEY"])
 @click.option("--secret", default=os.environ["SECRET_KEY"])
-@click.option("--symbols", default="SPY")
-def agent(key, secret, symbols):
-    agent = QuantAgent(key, secret, symbols)
-    agent.run()
+@click.option("--symbol", default="SPY")
+@click.option("--tasks", "-t", multiple=True)
+def agent(key, secret, symbol, tasks):
+    tasks = [i.replace("=", "") for i in tasks]
+    if len(tasks) == 1:
+        tasks = tasks[0]
+    agent = QuantAgent(api_key=key, api_secret=secret, symbol=symbol)
+    agent.run(tasks)

@@ -14,8 +14,6 @@
 
 import datetime
 import os
-from typing import List, Optional, Union
-from zoneinfo import ZoneInfo
 
 from alpaca.data import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
@@ -23,15 +21,9 @@ from alpaca.data.timeframe import TimeFrame
 from rich.progress import Progress
 
 
-class FetchBars:
-    def __init__(self, api_key, secret_key):
-        self.client = StockHistoricalDataClient(api_key, secret_key)
-
-    def run(
+class AcquisitionEngineer:
+    def acquire_data(
         self,
-        symbol_or_symbols: Union[str, List],
-        datadir: Optional[str] = "data/raw",
-        timezone: str = "US/Eastern",
         **kwargs,
     ):
         """
@@ -39,10 +31,12 @@ class FetchBars:
             StockBarsRequest:
             - https://alpaca.markets/docs/python-sdk/api_reference/data/stock/requests.html#stockbarsrequest
         """
+        client = StockHistoricalDataClient(self.api_key, self.api_secret)
+
         five_years_ago_today = datetime.datetime.now() - datetime.timedelta(days=5 * 365)
 
         request = StockBarsRequest(
-            symbol_or_symbols=symbol_or_symbols,
+            symbol_or_symbols=self.symbol,
             timeframe=TimeFrame.Day,
             start=five_years_ago_today,
             **kwargs,
@@ -50,12 +44,11 @@ class FetchBars:
 
         with Progress() as progress:
             task = progress.add_task("Fetching Bars...", total=100)
-            data = self.client.get_stock_bars(request)
+            data = client.get_stock_bars(request)
 
             while not progress.finished:
                 progress.update(task, advance=1)
 
-            dt = str(datetime.datetime.now().astimezone(tz=ZoneInfo(timezone))).replace(" ", "_")
-            fname = f"market_data_{dt}.pq"
-            datapath = os.path.join(os.getcwd(), datadir, fname)
-            data.df.to_parquet(datapath)
+            os.mkdir(self.agentdatapath)
+            self.rawdatapath = os.path.join(self.agentdatapath, "raw_market_data_.pq")
+            data.df.to_parquet(self.rawdatapath)

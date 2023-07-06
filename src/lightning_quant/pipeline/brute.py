@@ -16,7 +16,6 @@ import json
 import os
 from datetime import datetime
 from itertools import product
-from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
@@ -34,35 +33,19 @@ class BruteForceOptimizer:
         see page 490 of Dr. yves Hilpicsh's Python for Finance second edition
     """
 
-    def __init__(
-        self,
-        cagr=0.5,
-        sharpe=0.5,
-        max_drawdown=-0.3,
-        price_column: str = "close",
-        rawdatadir: str = "data/raw",
-        resultsdir: str = "data/brute_results",
-    ):
-        self.cagr = cagr
-        self.sharpe = sharpe
-        self.max_drawdown = -max_drawdown if max_drawdown > 0 else max_drawdown
-        self.price_column = price_column
-        self.resultsdir = resultsdir
-
-        rawpath = os.path.join(os.getcwd(), rawdatadir)
-        self.rawdata = pd.read_parquet(rawpath, columns=[self.price_column])
-        self.rawdata.reset_index(inplace=True)
-        self.rawdata.set_index("timestamp", inplace=True)
-        self.rawdata.drop("symbol", axis=1)
-        self.rawdata.index = pd.to_datetime(self.rawdata.index.date)
-        self.rawdata["returns"] = log_returns(self.rawdata[self.price_column])
-        self.rawdata.dropna(inplace=True)
-
-    def run(
+    def optimize_moving_averages(
         self,
         timezone: str = "US/Eastern",
     ):
         rprint(f"[{datetime.now().time()}] STARTING BFO")
+
+        data = pd.read_parquet(self.rawdatapath, columns=[self.close_col])
+        data.reset_index(inplace=True)
+        data.set_index("timestamp", inplace=True)
+        data.drop("symbol", axis=1)
+        data.index = pd.to_datetime(data.index.date)
+        data["returns"] = log_returns(data[self.close_col])
+        data.dropna(inplace=True)
 
         results = []
 
@@ -74,10 +57,10 @@ class BruteForceOptimizer:
 
             sentinel = 0
             for fast, slow in product(fast_range, slow_range):
-                testdata = self.rawdata.copy()
+                testdata = data.copy()
                 if fast != slow:  # account for 50, 50 overlap
-                    testdata["fast"] = testdata[self.price_column].rolling(fast).mean()
-                    testdata["slow"] = testdata[self.price_column].rolling(slow).mean()
+                    testdata["fast"] = testdata[self.close_col].rolling(fast).mean()
+                    testdata["slow"] = testdata[self.close_col].rolling(slow).mean()
                     testdata["position"] = np.where(testdata["fast"] >= testdata["slow"], 1, 0)
                     testdata["strategy_returns"] = testdata["position"] * testdata["returns"]  # do not shift position
                     testdata.dropna(inplace=True)
@@ -116,13 +99,12 @@ class BruteForceOptimizer:
         results = results.loc[results["Returns"] >= 1.0, :]
         results.sort_values("Returns", ascending=False, inplace=True)
 
-        dt = str(datetime.now().astimezone(tz=ZoneInfo(timezone))).replace(" ", "_")
-        resultsfname = os.path.join(self.resultsdir, f"results_{dt}.csv")
-        results.to_csv(resultsfname)
+        self.resultspath = os.path.join(self.agentdatapath, "results.csv")
+        results.to_csv(self.resultspath)
 
-        bestfname = os.path.join(self.resultsdir, f"best_{dt}.json")
+        self.bestconfigpath = os.path.join(self.agentdatapath, "best_config.json")
 
-        with open(bestfname, "w") as bestcfg:
+        with open(self.bestconfigpath, "w") as bestcfg:
             json.dump(best, bestcfg, indent=4)
 
         rprint(

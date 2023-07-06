@@ -14,8 +14,6 @@
 
 import datetime
 import os
-from typing import List
-from zoneinfo import ZoneInfo
 
 from pyarrow import parquet as pq
 from rich import print as rprint
@@ -32,51 +30,15 @@ from lightning_quant.factors.ta import (
 
 
 class FeatureEngineer:
-    def __init__(
-        self,
-        rawdir: str = "data/raw",
-        featuresdir: str = "data/features",
-        columns: List[str] = ["open", "high", "low", "close", "vwap", "symbol", "timestamp"],
-    ):
-        """
-        Custom class to preprocess raw data returned by Alpaca API
-
-        Notes:
-            Available columns returned by Alpaca are:
-                - symbol
-                - open
-                - high
-                - low
-                - close
-                - volume
-                - trade_count
-                - vwap
-        """
-        # set features path for processed data
-        self.featuresdir = featuresdir
-        # read in data, reset multi-index, set index to timestamp
-        self.rawdir = os.path.join(os.getcwd(), rawdir)
-        self.data = pq.read_table(rawdir, columns=columns).to_pandas()
-        self.data.reset_index(inplace=True)
-        self.data.set_index("timestamp", inplace=True)
-        # set market symbols
-        self.symbols = self.data["symbol"].unique().tolist()
-        # set unlearned moving average lookback windows
-        # these can be learned later through brute force optimization
-        # bfo is simply a for loop that selects the best cfg on some
-        # heuristic like minimum max-drawdown or maximum CAGR
-        self.fast_window = 20
-        self.slow_window = 50
-
     def _locate_raw_data(self):
-        [i for i in os.listdir(self.rawdir) if i.startswith("")]
+        [i for i in os.listdir(self.rawdatapath) if i.startswith("")]
 
-    def run(
+    def engineer_features(
         self,
         timezone: str = "US/Eastern",
     ):
         """
-        a pipeline to create statistically sound technical analysis features
+        a pipeline to create technical analysis features
 
         Notes:
             - when appropriate, the features will be normalized and created as expanding windows
@@ -84,10 +46,22 @@ class FeatureEngineer:
         """
         rprint(f"[{datetime.datetime.now().time()}] STARTING PRE PROCESSING")
 
+        self.data = pq.read_table(self.rawdatapath, columns=self.columns).to_pandas()
+        self.data.reset_index(inplace=True)
+        self.data.set_index("timestamp", inplace=True)
+        # set market symbols
+        self.symbol = self.data["symbol"].unique().tolist()
+        # set unlearned moving average lookback windows
+        # these can be learned later through brute force optimization
+        # bfo is simply a for loop that selects the best cfg on some
+        # heuristic like minimum max-drawdown or maximum CAGR
+        self.fast_window = 20
+        self.slow_window = 50
+
         with Progress() as progress:
             task = progress.add_task("PROCESSING DATA", total=100)
 
-            for symbol in self.symbols:
+            for symbol in self.symbol:
                 # filter data to symbol
                 batch = self.data.loc[self.data["symbol"] == symbol, :]
 
@@ -115,9 +89,7 @@ class FeatureEngineer:
                 batch.dropna(inplace=True)
                 batch.index = batch.index.date
 
-                dt = str(datetime.datetime.now().astimezone(tz=ZoneInfo(timezone))).replace(" ", "_")
-                fname = f"{symbol.upper()}_{dt}.pq"
-                featurespath = os.path.join(self.featuresdir, fname)
+                featurespath = os.path.join(self.agentdatapath, "features.pq")
                 # drop null values and save
                 batch.dropna().to_parquet(featurespath)
 

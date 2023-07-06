@@ -94,7 +94,7 @@ The instructions shown above will install the base requirements, those requireme
 - [alpaca-py](https://alpaca.markets/docs/python-sdk/): Alpaca Markets Python API
 - [neuralforecast](https://github.com/Nixtla/neuralforecast): neural forecasting models created by Nixtla
 - [Ploty](https://plotly.com/python/): Data Visualization
-- [Typer](https://typer.tiangolo.com): Command Line Interfaces
+- [Click](https://click.palletsprojects.com/): Command Line Interfaces
 
 ## Additional Requirements
 
@@ -126,7 +126,7 @@ quant run agent --key-YOUR-ALPACA-KEY --secret=YOUR-ALPACA-SECRET-KEY --symbol=S
 Alternatively, you can create a .env file and lightning-quant will automatically load the provided environment variables for you. And then use the following in terminal:
 
 ```sh
-quant run agent --symbol=SPY
+quant run agent --symbol=SPY --tasks=all
 ```
 
 ![](docs/assets/agent-run.gif)
