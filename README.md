@@ -14,9 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License. -->
 
-Lightning Quant is a library for algorithmic trading agents built with [Lightning AI](https://lightning.ai/) ecosystem projects Nixtla's [neuralforecast](https://github.com/Nixtla/neuralforecast) and Eclectic Sheep's [SheepRL](https://github.com/Eclectic-Sheep/sheeprl). [Alpaca Markets](https://alpaca.markets/) is used to fetch the historical data for the exercise.
+Lightning Quant is a library for training algorithmic trading agents with [Lightning AI](https://lightning.ai/) [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/) and [Lightning Fabric](https://lightning.ai/docs/fabric/stable/), along with the following ecosystem projects:
+
+- [neuralforecast](https://github.com/Nixtla/neuralforecast)
+- [pytorch-forecasting](https://pytorch-forecasting.readthedocs.io/en/stable/)
+- [SheepRL](https://github.com/Eclectic-Sheep/sheeprl)
 
 Lightning AI's PyTorch Lightning and Lightning Fabric are agnostic to the market broker and data source. One needs only to acquire and preprocess the desired market data and then construct the requisite PyTorch DataLoaders and LightningDataModule for the PyTorch Lightning Trainer or Lightning Fabric training loop that will be used with the bespoke PyTorch model, a SheepRL algorithm, or a neuralforecast model.
+
+[Alpaca Markets](https://alpaca.markets/) is used to fetch the historical data for the exercise.
 
 [SPY](https://www.google.com/finance/quote/SPY:NYSEARCA?sa=X&ved=2ahUKEwjQ-MKp5az_AhV2mYQIHXfxCu4Q3ecFegQIJRAX) (S&P 500) is used in examples.
 
@@ -113,7 +119,7 @@ pip install TA-lib
 
 ## Using Lightning-Quant
 
-Lightning-Quant provides a CLI, `quant`. The available commands for `quant` are shown below.
+Lightning-Quant provides a CLI, `quant` built with [Click]().
 
 ![](docs/assets/lightning-quant-run.png)
 
@@ -160,3 +166,7 @@ Each of the books below are by Dr. Yves Hilpisch. This series of referencess wil
 1. Financial Theory with Python
 2. Python for Algorithmic Trading
 3. Artificial Intelligence in Finance
+
+The following book is on ML for factor investing. The implementations are written in R in the book, and the community has provided select Python implementations.
+
+https://www.mlfactor.com/
