@@ -50,13 +50,18 @@ def agent(key, secret, symbol, tasks):
 
 
 @run.command("fast-dev")
+@click.option("--model", "-m", default="elasticnet")
 @click.option("--num_classes", default=2)
 @click.option("--accelerator", "-a", default="cpu")
-@click.option("--model", "-m", default="elasticnet")
-def fast_dev(num_classes, accelerator, model) -> None:
+@click.option("--devices", "-d", default=1)
+@click.option("--strategy", "-s", default=None)
+def fast_dev(model, num_classes, accelerator, devices, strategy) -> None:
     models = {"elasticnet": ElasticNet, "mlp": ElasticNetMLP}
     model = models[model]
     model = model(in_features=6, num_classes=num_classes)
     datamodule = MarketDataModule()
-    trainer = QuantLightningTrainer(fast_dev_run=True, accelerator=accelerator)
+    if strategy:
+        trainer = QuantLightningTrainer(fast_dev_run=True, devices=devices, accelerator=accelerator, strategy=strategy)
+    else:
+        trainer = QuantLightningTrainer(fast_dev_run=True, devices=devices, accelerator=accelerator)
     trainer.fit(model=model, datamodule=datamodule)
