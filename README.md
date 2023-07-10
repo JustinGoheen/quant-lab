@@ -129,10 +129,6 @@ pip install TA-lib
 >
 > The instructions shown below uses the lightning-quant path as a custom PREFIX
 
-> **Note**
->
-> replace {YOUR_USERNAME} with your username
-
 To install the source version in Linux, do the following:
 
 ```sh
