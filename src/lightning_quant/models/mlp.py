@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import OrderedDict
+
 import lightning as L
 import torch
 import torch.nn.functional as F
@@ -19,31 +21,56 @@ from torch import nn, optim
 from torchmetrics.functional import accuracy
 
 
-class LogisticRegression(L.LightningModule):
+class MLP(nn.Module):
+    def __init__(
+        self,
+        in_features: int,
+        num_classes: int,
+        bias: bool = False,
+        dtype=torch.float32,
+    ):
+        super().__init__()
+        linear1 = nn.Linear(in_features=in_features, out_features=in_features, bias=bias, dtype=dtype)
+        relu = nn.ReLU()
+        linear2 = nn.Linear(in_features=in_features, out_features=num_classes, bias=bias, dtype=dtype)
+        layer_ordereddict = OrderedDict([("input", linear1), ("activation", relu), ("output", linear2)])
+        self.sequential = nn.Sequential(layer_ordereddict)
+
+    def forward(self, x):
+        return self.sequential(x)
+
+
+class ElasticNetMLP(L.LightningModule):
+    """Logistic Regression with L1 and L2 Regularization"""
+
     def __init__(
         self,
         in_features: int,
         num_classes: int,
         bias: bool = False,
         lr: float = 0.001,
+        l1_strength: float = 0.1,
+        l2_strength: float = 0.1,
         optimizer="Adam",
         accuracy_task: str = "multiclass",
-        dtype=torch.float16,
+        dtype=torch.float32,
     ):
         super().__init__()
-        self.model = nn.Linear(in_features=in_features, out_features=num_classes, dtype=dtype)
-        self.loss = accuracy
+        self.save_hyperparameters()
+        self.model = MLP(in_features=in_features, num_classes=num_classes, bias=bias, dtype=dtype)
         self.optimizer = getattr(optim, optimizer)
         self.lr = lr
+        self.l1_strength = l1_strength
+        self.l2_strength = l2_strength
         self.accuracy_task = accuracy_task
         self.num_classes = num_classes
-        self.save_hyperparameters()
+        self._dtype = dtype  # cannot set explicitly
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor):
         return self.model(x)
 
     def training_step(self, batch):
-        self.common_step(batch, "training")
+        return self.common_step(batch, "training")
 
     def test_step(self, batch, *args):
         self.common_step(batch, "test")
@@ -54,10 +81,9 @@ class LogisticRegression(L.LightningModule):
     def common_step(self, batch, stage):
         """consolidates common code for train, test, and validation steps"""
         x, y = batch
-        print(x)
-        print(y)
-        y_hat = self.model(x)
-        print(y_hat)
+        x = x.to(self._dtype)
+        y = y.to(torch.long)  # cross_entropy expect long int64
+        y_hat = self(x)
         criterion = F.cross_entropy(y_hat, y)
         loss = self._regularization(criterion)
 
@@ -82,12 +108,12 @@ class LogisticRegression(L.LightningModule):
         return optimizer
 
     def _regularization(self, loss):
-        """borrowed from lightning bolts"""
+        output_layer = -1
         if self.hparams.l1_strength > 0:
-            l1_reg = self.model.weight.abs().sum()
-            loss += self.hparams.l1_strength * l1_reg
+            l1_reg = self.model.sequential[output_layer].weight.abs().sum()
+            loss += self.l1_strength * l1_reg
 
         if self.hparams.l2_strength > 0:
-            l2_reg = self.model.weight.pow(2).sum()
-            loss += self.hparams.l2_strength * l2_reg
+            l2_reg = self.model.sequential[output_layer].weight.pow(2).sum()
+            loss += self.l2_strength * l2_reg
         return loss
