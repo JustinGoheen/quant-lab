@@ -20,7 +20,8 @@ from dotenv import load_dotenv
 from lightning_quant.core.agent import QuantAgent
 from lightning_quant.core.lightning_trainer import QuantLightningTrainer
 from lightning_quant.data.datamodule import MarketDataModule
-from lightning_quant.models.logistic_regression import LogisticRegression
+from lightning_quant.models.elasticnet import ElasticNet
+from lightning_quant.models.mlp import ElasticNetMLP
 
 load_dotenv()
 
@@ -50,8 +51,12 @@ def agent(key, secret, symbol, tasks):
 
 @run.command("fast-dev")
 @click.option("--num_classes", default=2)
-def fast_dev(num_classes) -> None:
-    model = LogisticRegression(in_features=6, num_classes=num_classes)
+@click.option("--accelerator", "-a", default="cpu")
+@click.option("--model", "-m", default="elasticnet")
+def fast_dev(num_classes, accelerator, model) -> None:
+    models = {"elasticnet": ElasticNet, "mlp": ElasticNetMLP}
+    model = models[model]
+    model = model(in_features=6, num_classes=num_classes)
     datamodule = MarketDataModule()
-    trainer = QuantLightningTrainer(fast_dev_run=True, accelerator="mps")
+    trainer = QuantLightningTrainer(fast_dev_run=True, accelerator=accelerator)
     trainer.fit(model=model, datamodule=datamodule)
