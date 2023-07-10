@@ -12,9 +12,62 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+
 import lightning as L
+import torch
+from lightning.pytorch import seed_everything
+from lightning.pytorch.callbacks import ModelCheckpoint
+from lightning.pytorch.loggers import Logger, TensorBoardLogger
+from lightning.pytorch.profilers import Profiler
 
 
-class QuantTrainer(L.Trainer):
-    def __init__(self, model, datamodule):
-        super().__init__()
+class QuantLightningTrainer(L.Trainer):
+    """A custom Lightning.LightningTrainer
+
+    # Arguments
+        logger: None
+        profiler: None
+        callbacks: []
+        plugins: []
+        set_seed: True
+        trainer_init_kwargs:
+    """
+
+    def __init__(
+        self,
+        logger: Optional[Logger] = None,
+        profiler: Optional[Profiler] = None,
+        callbacks: Optional[List] = [],
+        plugins: Optional[List] = [],
+        set_seed: bool = True,
+        seed: int = 42,
+        profiler_logs: str = "logs/torch_profiler",
+        tensorboard_logs: str = "logs/tensorboard",
+        checkpoints_dir: str = "models/checkpoints",
+        **trainer_init_kwargs: Dict[str, Any]
+    ) -> None:
+        if set_seed:
+            seed_everything(seed, workers=True)
+
+        # if not profiler or not "fast_dev_run" in trainer_init_kwargs:
+        #     profiler = PyTorchProfiler(dirpath=profiler_logs, filename="profiler")
+
+        super().__init__(
+            logger=logger or TensorBoardLogger(tensorboard_logs, name="logs"),
+            profiler=profiler,
+            callbacks=callbacks + [ModelCheckpoint(dirpath=checkpoints_dir, filename="model")],
+            plugins=plugins,
+            **trainer_init_kwargs
+        )
+
+    def persist_predictions(self, predictions_dir: Optional[Union[str, Path]] = "models/onnx") -> None:
+        """helper method to persist predictions on completion of a training run
+
+        # Arguments
+            predictions_dir: the directory path where predictions should be saved to
+        """
+        self.test(ckpt_path="best", datamodule=self.datamodule)
+        predictions = self.predict(self.model, self.datamodule.test_dataloader())
+        torch.save(predictions, predictions_dir)

@@ -12,15 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
 
 class MarketDataset(Dataset):
-    def __init__(self, featuresdir: str = "data/features", labelsdir: str = "data/labels", labelcol: str = "position"):
-        featuresdir: str = "data/features"
-        labelsdir: str = "data/labels"
+    def __init__(
+        self,
+        datapath: str = "data/SPY_2023-07-05_22:43:46.227411-04:00",
+        labelcol: str = "position",
+    ):
+        featuresdir: str = os.path.join(os.getcwd(), datapath, "features.pq")
+        labelsdir: str = os.path.join(os.getcwd(), datapath, "labels.pq")
         features = pd.read_parquet(featuresdir).reset_index()
         labels = pd.read_parquet(labelsdir).reset_index()
         self.data = labels.merge(features, on="index")
@@ -29,8 +35,16 @@ class MarketDataset(Dataset):
         self.data.set_index("index", inplace=True)
         self.labelcol = labelcol
         self.featurecols = [i for i in self.data.columns if i != self.labelcol]
-        self.labelweights = self.data[self.labelcol].value_counts()
         super().__init__()
+
+    @property
+    def labelweights(self):
+        mappingsum = self.labelweightsmapping / self.labelweightsmapping.sum()
+        return mappingsum.to_numpy()
+
+    @property
+    def labelweightsmapping(self):
+        return self.data[self.labelcol].value_counts()
 
     def __len__(self):
         return len(self.data)

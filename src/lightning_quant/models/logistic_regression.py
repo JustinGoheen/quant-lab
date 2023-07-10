@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import lightning as L
+import torch
 import torch.nn.functional as F
 from torch import nn, optim
 from torchmetrics.functional import accuracy
@@ -23,20 +24,20 @@ class LogisticRegression(L.LightningModule):
         self,
         in_features: int,
         num_classes: int,
-        bias: bool = True,
+        bias: bool = False,
         lr: float = 0.001,
         optimizer="Adam",
         accuracy_task: str = "multiclass",
+        dtype=torch.float16,
     ):
-        self.model = nn.Linear(in_features=in_features, out_features=num_classes, bias=bias)
+        super().__init__()
+        self.model = nn.Linear(in_features=in_features, out_features=num_classes, dtype=dtype)
         self.loss = accuracy
         self.optimizer = getattr(optim, optimizer)
         self.lr = lr
         self.accuracy_task = accuracy_task
         self.num_classes = num_classes
         self.save_hyperparameters()
-
-        super().__init__()
 
     def forward(self, x):
         return self.model(x)
@@ -53,7 +54,10 @@ class LogisticRegression(L.LightningModule):
     def common_step(self, batch, stage):
         """consolidates common code for train, test, and validation steps"""
         x, y = batch
+        print(x)
+        print(y)
         y_hat = self.model(x)
+        print(y_hat)
         criterion = F.cross_entropy(y_hat, y)
         loss = self._regularization(criterion)
 
@@ -71,7 +75,10 @@ class LogisticRegression(L.LightningModule):
 
     def configure_optimizers(self):
         """configures the ``torch.optim`` used in training loop"""
-        optimizer = self.optimizer(self.parameters(), lr=self.lr)
+        optimizer = self.optimizer(
+            self.parameters(),
+            lr=self.lr,
+        )
         return optimizer
 
     def _regularization(self, loss):

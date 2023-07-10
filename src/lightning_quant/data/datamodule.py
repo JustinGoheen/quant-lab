@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import multiprocessing
+import os
 
 from lightning import LightningDataModule
-from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
+from torch.utils.data import DataLoader, Dataset, random_split, WeightedRandomSampler
 
-from lightning_quant.data import MarketDataset
+from lightning_quant.data.dataset import MarketDataset
 
 NUMWORKERS = int(multiprocessing.cpu_count() // 2)
 
@@ -27,29 +27,30 @@ class MarketDataModule(LightningDataModule):
     def __init__(
         self,
         dataset: Dataset = MarketDataset,
-        featuresdir: str = "data/features",
-        labelsdir: str = "data/labels",
+        datapath: str = "data/SPY_2023-07-05_22:43:46.227411-04:00",
         train_size: float = 0.8,
         num_workers: int = NUMWORKERS,
         labelcol: str = "position",
     ):
         super().__init__()
-        self.dataset = dataset
+        self.dataset = dataset(datapath=datapath, labelcol=labelcol)
+        self.datapath = datapath
         self.train_size = train_size
         self.num_workers = num_workers
-        self.featurespath = featuresdir
-        self.labelspath = labelsdir
+        self.featurespath = os.path.join(os.getcwd(), datapath, "features.pq")
+        self.labelspath = os.path.join(os.getcwd(), datapath, "labels.pq")
         self.labelcol = labelcol
         self.sampler = None
 
     def prepare_data(self):
-        self.dataset(featuresdir=self.featurespath, labelsdir=self.labelspath, labelcol=self.labelcol)
+        self.dataset = self.dataset
 
     def setup(self, stage=None):
         if stage == "fit" or stage is None:
             train_size = int(len(self.dataset) * self.train_size)
-            test_size = len(self.dataset) - train_size
-            self.sampler = WeightedRandomSampler(self.dataset, lengths=[train_size, test_size])
+            val_size = len(self.dataset) - train_size
+            self.train_data, self.val_data = random_split(self.dataset, lengths=[train_size, val_size])
+            self.sampler = WeightedRandomSampler(self.dataset.labelweights, train_size)
         if stage == "test" or stage is None:
             self.test_data = self.val_data
 

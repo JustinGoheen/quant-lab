@@ -18,6 +18,9 @@ import click
 from dotenv import load_dotenv
 
 from lightning_quant.core.agent import QuantAgent
+from lightning_quant.core.lightning_trainer import QuantLightningTrainer
+from lightning_quant.data.datamodule import MarketDataModule
+from lightning_quant.models.logistic_regression import LogisticRegression
 
 load_dotenv()
 
@@ -43,3 +46,12 @@ def agent(key, secret, symbol, tasks):
         tasks = tasks[0]
     agent = QuantAgent(api_key=key, api_secret=secret, symbol=symbol)
     agent.run(tasks)
+
+
+@run.command("fast-dev")
+@click.option("--num_classes", default=2)
+def fast_dev(num_classes) -> None:
+    model = LogisticRegression(in_features=6, num_classes=num_classes)
+    datamodule = MarketDataModule()
+    trainer = QuantLightningTrainer(fast_dev_run=True, accelerator="mps")
+    trainer.fit(model=model, datamodule=datamodule)
