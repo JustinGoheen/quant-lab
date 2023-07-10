@@ -104,6 +104,8 @@ The instructions shown above will install the base requirements, those requireme
 
 ## Additional Requirements
 
+### Installing TA-LIB on MacOS
+
 > **Note**
 >
 > To install the Cython version of TA-Lib, you must first install the SWIG version.
@@ -115,6 +117,54 @@ The instructions shown above will install the base requirements, those requireme
 brew install ta-lib
 # then install Cython Ta-Lib
 pip install TA-lib
+```
+
+### Installing TA-Lib on Linux
+
+> **Note**
+>
+> You will need to be in your root user directory
+
+> **Note**
+>
+> The instructions shown below uses the lightning-quant path as a custom PREFIX
+
+> **Note**
+>
+> replace {YOUR_USERNAME} with your username
+
+To install the source version in Linux, do the following:
+
+```sh
+# get the zipped package
+wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
+# unzip
+tar -xzf ta-lib-0.4.0-src.tar.gz
+# remove the zipped package
+rm -rf http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
+# create a custom prefix as the path to lightning-quant
+export TALIB_PREFIX=$PWD/.venv/ctalib
+# change directoy into the unzipped package
+cd ta-lib/
+# install
+./configure --prefix=$TALIB_PREFIX
+make && make install
+# set env variables to locate the install
+export TA_INCLUDE_PATH=$TALIB_PREFIX/include
+export TA_LIBRARY_PATH=$TALIB_PREFIX/lib
+```
+
+Navigate back to root directory of lightning-quant and do the following:
+
+```sh
+# activate the venv and install
+cd ..
+# ensure you are in lightning-quant
+pwd
+# if in lightning quant, proceed
+git clone https://github.com/TA-Lib/ta-lib-python.git
+source .venv/bin/activate
+pip install ta-lib-python/
 ```
 
 ## Using Lightning-Quant
