@@ -141,3 +141,6 @@ dmypy.json
 
 # PyCharm
 .idea
+
+# talib
+ta-lib*
