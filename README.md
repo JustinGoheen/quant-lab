@@ -204,13 +204,33 @@ SECRET_KEY=YOUR_SECRET_KEY
 quant run fast-dev
 ```
 
-The above command will run ElasticNet (a logistic regression model with L1 and L2 regularization), on a CPU, with no defined distrubuted training strategy. To run `quant` with these settings, you can do:
+The above command will run ElasticNet (a logistic regression model with L1 and L2 regularization), on a CPU, with no defined distributed training strategy. 
+
+To run `quant` with different settings, you can do:
 
 ```sh
 quant run fast-dev --model mlp --accelerator gpu --devices 2 --strategy ddp
 ```
 
 The above will run the MLP based on ElasticNet on 2 GPUs using DDP.
+
+All of the options for `quant run fast-dev` are shown below:
+
+<details>
+    <summary>Options</summary>
+
+-m, --model is passed as str
+
+-nc, --num_classes is passed as str
+
+-a, --accelerator is passed as str
+
+-d, --devices is passed as str
+
+-s, --strategy is passed as str
+
+--help 
+</details>
 
 ## Additional Resources
 
