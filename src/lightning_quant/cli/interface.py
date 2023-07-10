@@ -51,7 +51,7 @@ def agent(key, secret, symbol, tasks):
 
 @run.command("fast-dev")
 @click.option("--model", "-m", default="elasticnet")
-@click.option("--num_classes", default=2)
+@click.option("--num_classes", "-nc", default=2)
 @click.option("--accelerator", "-a", default="cpu")
 @click.option("--devices", "-d", default=1)
 @click.option("--strategy", "-s", default=None)

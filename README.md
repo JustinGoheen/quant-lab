@@ -165,6 +165,8 @@ pip install ta-lib-python/
 
 ## Using Lightning-Quant
 
+### Data Prep
+
 Lightning-Quant provides a CLI, `quant` built with [Click]().
 
 ![](docs/assets/lightning-quant-run.png)
@@ -193,6 +195,22 @@ The contents of your `.env` file should be:
 API_KEY=YOUR_API_KEY
 SECRET_KEY=YOUR_SECRET_KEY
 ```
+
+### Using the Models
+
+`quant` can be used to test the implemented models with
+
+```sh
+quant run fast-dev
+```
+
+The above command will run ElasticNet (a logistic regression model with L1 and L2 regularization), on a CPU, with no defined distrubuted training strategy. To run `quant` with these settings, you can do:
+
+```sh
+quant run fast-dev --model mlp --accelerator gpu --devices 2 --strategy ddp
+```
+
+The above will run the MLP based on ElasticNet on 2 GPUs using DDP.
 
 ## Additional Resources
 
