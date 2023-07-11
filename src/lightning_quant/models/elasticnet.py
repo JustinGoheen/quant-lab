@@ -41,7 +41,7 @@ class ElasticNet(L.LightningModule):
         self.l2_strength = l2_strength
         self.accuracy_task = accuracy_task
         self.num_classes = num_classes
-        self._dtype = getattr(torch, dtype)  # cannot set explicitly
+        self._dtype = getattr(torch, dtype)  # cannot set explicitly, leave as _dtype and not dtype
         self.optimizer = getattr(optim, optimizer)
         self.model = nn.Linear(in_features=in_features, out_features=num_classes, bias=bias, dtype=self._dtype)
         self.save_hyperparameters()

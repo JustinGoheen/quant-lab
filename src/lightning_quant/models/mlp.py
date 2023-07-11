@@ -53,18 +53,19 @@ class ElasticNetMLP(L.LightningModule):
         l2_strength: float = 0.1,
         optimizer="Adam",
         accuracy_task: str = "multiclass",
-        dtype=torch.float32,
+        dtype="float32",
     ):
         super().__init__()
-        self.save_hyperparameters()
-        self.model = MLP(in_features=in_features, num_classes=num_classes, bias=bias, dtype=dtype)
-        self.optimizer = getattr(optim, optimizer)
+
         self.lr = lr
         self.l1_strength = l1_strength
         self.l2_strength = l2_strength
         self.accuracy_task = accuracy_task
         self.num_classes = num_classes
-        self._dtype = dtype  # cannot set explicitly
+        self._dtype = getattr(torch, dtype)  # cannot set explicitly
+        self.optimizer = getattr(optim, optimizer)
+        self.model = MLP(in_features=in_features, num_classes=num_classes, bias=bias, dtype=self._dtype)
+        self.save_hyperparameters()
 
     def forward(self, x: torch.Tensor):
         return self.model(x)
