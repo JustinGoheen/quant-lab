@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+from typing import List, Optional
 
 import typer
 from dotenv import load_dotenv
@@ -58,13 +59,33 @@ def fast_dev(
     model: Annotated[str, typer.Option(help="a model name from (elasticnet, mlp)")] = "elasticnet",
     num_classes: Annotated[int, typer.Option(help="the number of classes or labels")] = 2,
     accelerator: Annotated[str, typer.Option(help="one of (cpu, gpu, tpu, ipu, auto)")] = "cpu",
-    devices: Annotated[int, typer.Option()] = 1,
-    strategy: Annotated[str, typer.Option()] = None,
+    ndevices: Annotated[
+        Optional[int],
+        typer.Argument(help="Number of devices to train on (int)"),
+    ] = 1,
+    devices: Annotated[
+        Optional[List[int]],
+        typer.Argument(help="Which devices to train on"),
+    ] = None,
+    strategy: Annotated[
+        Optional[str],
+        typer.Argument(help="Supports passing different training strategies, such as 'ddp' or 'fsdp')"),
+    ] = None,
 ) -> None:
+    # set model
     models = {"elasticnet": ElasticNet, "mlp": ElasticNetMLP}
-    model = models[model]
+    model = models[model]  # throws a hard error if not in keys
     model = model(in_features=6, num_classes=num_classes)
+    # set datamodule
     datamodule = MarketDataModule()
+    # check and set devices
+    if ndevices and devices:
+        raise Exception("can only set one of (ndevices, devices)")
+    if devices:
+        devices_container = [arg for arg in devices]
+        devices = devices_container
+    else:
+        devices = ndevices
     if strategy:
         trainer = QuantLightningTrainer(fast_dev_run=True, devices=devices, accelerator=accelerator, strategy=strategy)
     else:
