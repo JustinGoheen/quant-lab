@@ -14,8 +14,9 @@
 
 import os
 
-import click
+import typer
 from dotenv import load_dotenv
+from typing_extensions import Annotated
 
 from lightning_quant.core.agent import QuantAgent
 from lightning_quant.core.lightning_trainer import QuantLightningTrainer
@@ -25,23 +26,26 @@ from lightning_quant.models.mlp import ElasticNetMLP
 
 load_dotenv()
 
+# the main app
+# use this in setup.cfg in options.entry_points
+app = typer.Typer()
+# a nested app called "run"
+run_app = typer.Typer()
+app.add_typer(run_app, name="run")
 
-@click.group()
-def main() -> None:
+
+@run_app.callback()
+def run_callback():
     pass
 
 
-@main.group("run")
-def run():
-    pass
-
-
-@run.command("agent")
-@click.option("--key", default=os.environ["API_KEY"])
-@click.option("--secret", default=os.environ["SECRET_KEY"])
-@click.option("--symbol", default="SPY")
-@click.option("--tasks", "-t", multiple=True)
-def agent(key, secret, symbol, tasks):
+@run_app.command("agent")
+def agent(
+    key: Annotated[str, typer.Option()] = os.environ["API_KEY"],
+    secret: Annotated[str, typer.Option()] = os.environ["SECRET_KEY"],
+    symbol: Annotated[str, typer.Option()] = "SPY",
+    tasks: Annotated[str, typer.Option()] = "all",
+):
     tasks = [i.replace("=", "") for i in tasks]
     if len(tasks) == 1:
         tasks = tasks[0]
@@ -49,13 +53,15 @@ def agent(key, secret, symbol, tasks):
     agent.run(tasks)
 
 
-@run.command("fast-dev")
-@click.option("--model", "-m", default="elasticnet")
-@click.option("--num_classes", "-nc", default=2)
-@click.option("--accelerator", "-a", default="cpu")
-@click.option("--devices", "-d", default=1)
-@click.option("--strategy", "-s", default=None)
-def fast_dev(model, num_classes, accelerator, devices, strategy) -> None:
+@run_app.command("fast-dev")
+def fast_dev(
+    model: Annotated[str, typer.Option(help="a model name from (elasticnet, mlp)")] = "elasticnet",
+    num_classes: Annotated[int, typer.Option(help="the number of classes or labels")] = 2,
+    accelerator: Annotated[str, typer.Option(help="one of (cpu, gpu, tpu, ipu, auto)")] = "cpu",
+    devices: Annotated[int, typer.Option()] = 1,
+    strategy: Annotated[str, typer.Option()] = None,
+) -> None:
+    print("running typer")
     models = {"elasticnet": ElasticNet, "mlp": ElasticNetMLP}
     model = models[model]
     model = model(in_features=6, num_classes=num_classes)

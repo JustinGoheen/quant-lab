@@ -100,7 +100,7 @@ The instructions shown above will install the base requirements, those requireme
 - [alpaca-py](https://alpaca.markets/docs/python-sdk/): Alpaca Markets Python API
 - [neuralforecast](https://github.com/Nixtla/neuralforecast): neural forecasting models created by Nixtla
 - [Ploty](https://plotly.com/python/): Data Visualization
-- [Click](https://click.palletsprojects.com/): Command Line Interfaces
+- [Typer](https://click.palletsprojects.com/): Command Line Interfaces
 
 ## Additional Requirements
 
@@ -204,7 +204,7 @@ SECRET_KEY=YOUR_SECRET_KEY
 quant run fast-dev
 ```
 
-The above command will run ElasticNet (a logistic regression model with L1 and L2 regularization), on a CPU, with no defined distributed training strategy. 
+The above command will run ElasticNet (a logistic regression model with L1 and L2 regularization), on a CPU, with no defined distributed training strategy.
 
 To run `quant` with different settings, you can do:
 
@@ -229,7 +229,8 @@ All of the options for `quant run fast-dev` are shown below:
 
 -s, --strategy is passed as str
 
---help 
+--help
+
 </details>
 
 ## Additional Resources
