@@ -61,7 +61,6 @@ def fast_dev(
     devices: Annotated[int, typer.Option()] = 1,
     strategy: Annotated[str, typer.Option()] = None,
 ) -> None:
-    print("running typer")
     models = {"elasticnet": ElasticNet, "mlp": ElasticNetMLP}
     model = models[model]
     model = model(in_features=6, num_classes=num_classes)
