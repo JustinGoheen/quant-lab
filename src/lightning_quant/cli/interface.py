@@ -96,4 +96,5 @@ def run_trainer(
     predictions_dir = os.path.join(os.getcwd(), "models", "pretrained")
     if not os.path.isdir(predictions_dir):
         os.mkdir(predictions_dir)
-    trainer.persist_predictions(predictions_dir=predictions_dir)
+    preds = os.path.join(predictions_dir, "preds.pt")
+    trainer.persist_predictions(preds_path=preds)

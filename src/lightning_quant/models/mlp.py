@@ -62,7 +62,7 @@ class ElasticNetMLP(L.LightningModule):
         self.l2_strength = l2_strength
         self.accuracy_task = accuracy_task
         self.num_classes = num_classes
-        self._dtype = getattr(torch, dtype)  # cannot set explicitly
+        self._dtype = getattr(torch, dtype)  # cannot set explicitly, leave as _dtype and not dtype
         self.optimizer = getattr(optim, optimizer)
         self.model = MLP(in_features=in_features, num_classes=num_classes, bias=bias, dtype=self._dtype)
         self.save_hyperparameters()
@@ -83,7 +83,7 @@ class ElasticNetMLP(L.LightningModule):
         """consolidates common code for train, test, and validation steps"""
         x, y = batch
         x = x.to(self._dtype)
-        y = y.to(torch.long)  # cross_entropy expect long int64
+        y = y.to(torch.long)  # cross_entropy expects long int64
         y_hat = self(x)
         criterion = F.cross_entropy(y_hat, y)
         loss = self._regularization(criterion)

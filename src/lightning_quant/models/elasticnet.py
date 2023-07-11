@@ -62,7 +62,7 @@ class ElasticNet(L.LightningModule):
         """consolidates common code for train, test, and validation steps"""
         x, y = batch
         x = x.to(self._dtype)
-        y = y.to(torch.long)  # cross_entropy expect long int64
+        y = y.to(torch.long)  # cross_entropy expects long int64
         y_hat = self.model(x)
         criterion = F.cross_entropy(y_hat, y)
         loss = self._regularization(criterion)

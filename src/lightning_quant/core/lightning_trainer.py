@@ -59,7 +59,7 @@ class QuantLightningTrainer(L.Trainer):
             **trainer_init_kwargs
         )
 
-    def persist_predictions(self, predictions_dir: Optional[Union[str, Path]] = "models/onnx") -> None:
+    def persist_predictions(self, preds_path: Optional[Union[str, Path]] = "models/preds.pt") -> None:
         """helper method to persist predictions on completion of a training run
 
         # Arguments
@@ -67,4 +67,4 @@ class QuantLightningTrainer(L.Trainer):
         """
         self.test(ckpt_path="best", datamodule=self.datamodule)
         predictions = self.predict(self.model, self.datamodule.test_dataloader())
-        torch.save(predictions, predictions_dir)
+        torch.save(predictions, preds_path)
