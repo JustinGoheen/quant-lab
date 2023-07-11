@@ -45,7 +45,7 @@ def agent(
     secret: Annotated[str, typer.Option()] = os.environ["SECRET_KEY"],
     symbol: Annotated[str, typer.Option()] = "SPY",
     tasks: Annotated[str, typer.Option()] = "all",
-):
+) -> None:
     tasks = [i.replace("=", "") for i in tasks]
     if len(tasks) == 1:
         tasks = tasks[0]
