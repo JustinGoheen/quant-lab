@@ -63,7 +63,7 @@ class QuantLightningTrainer(L.Trainer):
         """helper method to persist predictions on completion of a training run
 
         # Arguments
-            predictions_dir: the directory path where predictions should be saved to
+            preds_path: the file path where predictions should be saved to
         """
         self.test(ckpt_path="best", datamodule=self.datamodule)
         predictions = self.predict(self.model, self.datamodule.test_dataloader())

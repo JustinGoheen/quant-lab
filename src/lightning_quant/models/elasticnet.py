@@ -77,7 +77,9 @@ class ElasticNet(L.LightningModule):
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
         x, y = batch
-        return self(x)
+        y_hat = self(x)
+        y_hat = y_hat.argmax(dim=-1)
+        return y_hat
 
     def configure_optimizers(self):
         """configures the ``torch.optim`` used in training loop"""

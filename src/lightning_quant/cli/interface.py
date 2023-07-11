@@ -12,19 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import os
 from typing import Optional
 
 import typer
 from dotenv import load_dotenv
 from lightning.pytorch.callbacks import EarlyStopping
+from rich import print as rprint
 from typing_extensions import Annotated
 
 from lightning_quant.core.agent import QuantAgent
+from lightning_quant.core.fabric_trainer import QuantFabricTrainer
 from lightning_quant.core.lightning_trainer import QuantLightningTrainer
 from lightning_quant.data.datamodule import MarketDataModule
+from lightning_quant.data.dataset import MarketDataset
 from lightning_quant.models.elasticnet import ElasticNet
-from lightning_quant.models.mlp import ElasticNetMLP
+from lightning_quant.models.mlp import ElasticNetMLP, MLP
 
 load_dotenv()
 
@@ -39,6 +43,37 @@ app.add_typer(run_app, name="run")
 @run_app.callback()
 def run_callback():
     pass
+
+
+@run_app.command("fabric")
+def run_fabric(
+    num_classes: Annotated[int, typer.Option(help="the number of classes or labels")] = 2,
+    accelerator: Annotated[str, typer.Option(help="one of (cpu, gpu, tpu, ipu, auto)")] = "cpu",
+    devices: Annotated[Optional[int], typer.Option(help="Number of devices to train on")] = 1,
+    strategy: Annotated[
+        str,
+        typer.Option(help="Supports passing different training strategies, such as 'ddp' or 'fsdp')"),
+    ] = "auto",
+    num_nodes: Annotated[int, typer.Option(help="sets the dtype")] = 1,
+    precision: Annotated[str, typer.Option(help="sets the dtype")] = "32-true",
+    max_epochs: Annotated[int, typer.Option(help="stop training once this number of epochs is reached")] = 50,
+) -> None:
+    rprint(f"[STARTING] {datetime.datetime.now()}")
+    model = MLP(in_features=6, num_classes=num_classes)
+    # set dataset
+    dataset = MarketDataset()
+    # set trainer
+    trainer = QuantFabricTrainer(
+        accelerator=accelerator,
+        devices=devices,
+        strategy=strategy,
+        num_nodes=num_nodes,
+        max_epochs=max_epochs,
+        precision=precision,
+    )
+    trainer.fit(model, dataset)
+    rprint(f"[FINISHED] {datetime.datetime.now()}")
+    rprint(f"LOSS: {trainer.loss.item()}")
 
 
 @run_app.command("agent")
@@ -57,17 +92,17 @@ def agent(
 
 @run_app.command("trainer")
 def run_trainer(
-    model: Annotated[str, typer.Argument(help="a model name from (elasticnet, mlp)")] = "elasticnet",
-    num_classes: Annotated[int, typer.Argument(help="the number of classes or labels")] = 2,
-    accelerator: Annotated[str, typer.Argument(help="one of (cpu, gpu, tpu, ipu, auto)")] = "cpu",
-    devices: Annotated[Optional[int], typer.Argument(help="Number of devices to train on")] = None,
+    model: Annotated[str, typer.Option(help="a model name from (elasticnet, mlp)")] = "elasticnet",
+    num_classes: Annotated[int, typer.Option(help="the number of classes or labels")] = 2,
+    accelerator: Annotated[str, typer.Option(help="one of (cpu, gpu, tpu, ipu, auto)")] = "cpu",
+    devices: Annotated[Optional[int], typer.Option(help="Number of devices to train on")] = None,
     strategy: Annotated[
         str,
-        typer.Argument(help="Supports passing different training strategies, such as 'ddp' or 'fsdp')"),
+        typer.Option(help="Supports passing different training strategies, such as 'ddp' or 'fsdp')"),
     ] = "auto",
     fast_dev_run: Annotated[Optional[bool], typer.Option(help="flag to run fast_dev_run")] = False,
-    precision: Annotated[str, typer.Argument(help="sets the dtype")] = "32-true",
-    max_epochs: Annotated[int, typer.Argument(help="stop training once this number of epochs is reached")] = 100,
+    precision: Annotated[str, typer.Option(help="sets the dtype")] = "32-true",
+    max_epochs: Annotated[int, typer.Option(help="stop training once this number of epochs is reached")] = 100,
 ) -> None:
     """
     Notes:

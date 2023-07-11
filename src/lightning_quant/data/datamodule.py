@@ -61,4 +61,4 @@ class MarketDataModule(LightningDataModule):
         return DataLoader(self.val_data, num_workers=self.num_workers, shuffle=False, sampler=self.sampler)
 
     def test_dataloader(self):
-        return DataLoader(self.test_data, num_workers=self.num_workers, shuffle=False)
+        return DataLoader(self.dataset, num_workers=self.num_workers, shuffle=False)
