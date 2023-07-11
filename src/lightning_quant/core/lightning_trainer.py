@@ -51,9 +51,6 @@ class QuantLightningTrainer(L.Trainer):
         if set_seed:
             seed_everything(seed, workers=True)
 
-        # if not profiler or not "fast_dev_run" in trainer_init_kwargs:
-        #     profiler = PyTorchProfiler(dirpath=profiler_logs, filename="profiler")
-
         super().__init__(
             logger=logger or TensorBoardLogger(tensorboard_logs, name="logs"),
             profiler=profiler,

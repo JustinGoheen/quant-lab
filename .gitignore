@@ -144,3 +144,9 @@ dmypy.json
 
 # talib
 ta-lib*
+
+# logs
+logs
+
+# dev checkpoints
+models/checkpoints
