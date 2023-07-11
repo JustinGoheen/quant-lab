@@ -17,6 +17,7 @@ from typing import Optional
 
 import typer
 from dotenv import load_dotenv
+from lightning.pytorch.callbacks import EarlyStopping
 from typing_extensions import Annotated
 
 from lightning_quant.core.agent import QuantAgent
@@ -65,7 +66,14 @@ def run_trainer(
         typer.Argument(help="Supports passing different training strategies, such as 'ddp' or 'fsdp')"),
     ] = "auto",
     fast_dev_run: Annotated[Optional[bool], typer.Option(help="flag to run fast_dev_run")] = False,
+    precision: Annotated[str, typer.Argument(help="sets the dtype")] = "32-true",
+    max_epochs: Annotated[int, typer.Argument(help="stop training once this number of epochs is reached")] = 100,
 ) -> None:
+    """
+    Notes:
+        to create additional arguments or options from Lightning Trainer flags, see:
+        https://lightning.ai/docs/pytorch/stable/common/trainer.html#trainer-class-api
+    """
     # set model
     models = {"elasticnet": ElasticNet, "mlp": ElasticNetMLP}
     model = models[model]  # throws a hard error if not in keys
@@ -78,6 +86,14 @@ def run_trainer(
         accelerator=accelerator,
         strategy=strategy,
         fast_dev_run=fast_dev_run,
+        precision=precision,
+        max_epochs=max_epochs,
+        callbacks=[EarlyStopping("training_loss")],
     )
     # fit
     trainer.fit(model=model, datamodule=datamodule)
+    # save predictions
+    predictions_dir = os.path.join(os.getcwd(), "models", "pretrained")
+    if not os.path.isdir(predictions_dir):
+        os.mkdir(predictions_dir)
+    trainer.persist_predictions(predictions_dir=predictions_dir)
