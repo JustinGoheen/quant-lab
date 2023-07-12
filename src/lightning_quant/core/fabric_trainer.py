@@ -12,11 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
+
 import lightning as L
 import torch
 import torch.nn.functional as F
 from lightning.fabric.loggers import TensorBoardLogger
 from rich.progress import Progress
+
+torchlogging = logging.getLogger("torch")
+torchlogging.propagate = False
+torchlogging.setLevel(logging.ERROR)
 
 
 def regularization(model, loss, l1_strength=0.5, l2_strength=0.5):

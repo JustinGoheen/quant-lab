@@ -31,12 +31,12 @@ from lightning_quant.data.dataset import MarketDataset
 from lightning_quant.models.elasticnet import ElasticNet
 from lightning_quant.models.mlp import ElasticNetMLP, MLP
 
-load_dotenv()
-
-
 torchlogging = logging.getLogger("torch")
 torchlogging.propagate = False
 torchlogging.setLevel(logging.ERROR)
+
+load_dotenv()
+
 
 # the main app
 # use this in setup.cfg in options.entry_points
