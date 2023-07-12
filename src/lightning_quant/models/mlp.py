@@ -27,14 +27,25 @@ class MLP(nn.Module):
         in_features: int,
         num_classes: int,
         bias: bool = False,
-        dtype=torch.float32,
+        dtype="float32",
     ):
         super().__init__()
-        linear1 = nn.Linear(in_features=in_features, out_features=in_features, bias=bias, dtype=dtype)
+        _dtype = getattr(torch, dtype)
+        linear1 = nn.Linear(
+            in_features=in_features,
+            out_features=in_features,
+            bias=bias,
+            dtype=_dtype,
+        )
         relu = nn.ReLU()
-        linear2 = nn.Linear(in_features=in_features, out_features=num_classes, bias=bias, dtype=dtype)
-        layer_ordereddict = OrderedDict([("input", linear1), ("activation", relu), ("output", linear2)])
-        self.sequential = nn.Sequential(layer_ordereddict)
+        linear2 = nn.Linear(
+            in_features=in_features,
+            out_features=num_classes,
+            bias=bias,
+            dtype=_dtype,
+        )
+        layers = OrderedDict([("input", linear1), ("activation", relu), ("output", linear2)])
+        self.sequential = nn.Sequential(layers)
 
     def forward(self, x):
         return self.sequential(x)
@@ -56,6 +67,9 @@ class ElasticNetMLP(L.LightningModule):
         dtype="float32",
     ):
         super().__init__()
+
+        if "32" in dtype and torch.cuda.is_available():
+            torch.set_float32_matmul_precision("medium")
 
         self.lr = lr
         self.l1_strength = l1_strength
@@ -86,7 +100,7 @@ class ElasticNetMLP(L.LightningModule):
         y = y.to(torch.long)  # cross_entropy expects long int64
         y_hat = self(x)
         criterion = F.cross_entropy(y_hat, y)
-        loss = self._regularization(criterion)
+        loss = self.regularization(criterion)
 
         if stage == "training":
             self.log(f"{stage}_loss", loss)
@@ -110,7 +124,7 @@ class ElasticNetMLP(L.LightningModule):
         )
         return optimizer
 
-    def _regularization(self, loss):
+    def regularization(self, loss):
         output_layer = -1
         if self.hparams.l1_strength > 0:
             l1_reg = self.model.sequential[output_layer].weight.abs().sum()

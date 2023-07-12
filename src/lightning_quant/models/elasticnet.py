@@ -36,6 +36,9 @@ class ElasticNet(L.LightningModule):
     ):
         super().__init__()
 
+        if "32" in dtype and torch.cuda.is_available():
+            torch.set_float32_matmul_precision("medium")
+
         self.lr = lr
         self.l1_strength = l1_strength
         self.l2_strength = l2_strength
