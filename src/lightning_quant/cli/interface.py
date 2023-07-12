@@ -79,7 +79,6 @@ def run_fabric(
     )
     trainer.fit(model, dataset)
     rprint(f"[FINISHED] {datetime.datetime.now()}")
-    rprint(f"LOSS: {trainer.loss.item()}")
 
 
 @run_app.command("agent")
