@@ -46,8 +46,12 @@ class QuantFabricTrainer:
         max_epochs=20,
         precision="32-true",
         dtype="float32",
+        matmul_precision="medium",
     ) -> None:
         """A custom, minimal Lightning Fabric Trainer"""
+
+        if "32" in dtype and torch.cuda.is_available():
+            torch.set_float32_matmul_precision(matmul_precision)
 
         self.fabric = L.Fabric(
             accelerator=accelerator,
