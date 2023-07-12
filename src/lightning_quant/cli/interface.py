@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import datetime
+import logging
 import os
 from typing import Optional
 
@@ -31,6 +32,11 @@ from lightning_quant.models.elasticnet import ElasticNet
 from lightning_quant.models.mlp import ElasticNetMLP, MLP
 
 load_dotenv()
+
+
+torchlogging = logging.getLogger("torch")
+torchlogging.propagate = False
+torchlogging.setLevel(logging.ERROR)
 
 # the main app
 # use this in setup.cfg in options.entry_points
@@ -128,8 +134,9 @@ def run_trainer(
     # fit
     trainer.fit(model=model, datamodule=datamodule)
     # save predictions
-    predictions_dir = os.path.join(os.getcwd(), "models", "pretrained")
-    if not os.path.isdir(predictions_dir):
-        os.mkdir(predictions_dir)
-    preds = os.path.join(predictions_dir, "preds.pt")
-    trainer.persist_predictions(preds_path=preds)
+    if not fast_dev_run:
+        predictions_dir = os.path.join(os.getcwd(), "models", "pretrained")
+        if not os.path.isdir(predictions_dir):
+            os.mkdir(predictions_dir)
+        preds = os.path.join(predictions_dir, "preds.pt")
+        trainer.persist_predictions(preds_path=preds)
