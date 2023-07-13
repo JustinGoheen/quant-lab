@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
@@ -23,22 +22,9 @@ from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.loggers import Logger, TensorBoardLogger
 from lightning.pytorch.profilers import Profiler
 
-torchlogging = logging.getLogger("torch")
-torchlogging.propagate = False
-torchlogging.setLevel(logging.ERROR)
-
 
 class QuantLightningTrainer(L.Trainer):
-    """A custom Lightning.LightningTrainer
-
-    # Arguments
-        logger: None
-        profiler: None
-        callbacks: []
-        plugins: []
-        set_seed: True
-        trainer_init_kwargs:
-    """
+    """A custom Lightning.LightningTrainer"""
 
     def __init__(
         self,
@@ -48,9 +34,9 @@ class QuantLightningTrainer(L.Trainer):
         plugins: Optional[List] = [],
         set_seed: bool = True,
         seed: int = 42,
-        profiler_logs: str = "logs/torch_profiler",
-        tensorboard_logs: str = "logs/tensorboard",
-        checkpoints_dir: str = "models/checkpoints",
+        profiler_logs: Optional[str] = "logs/torch_profiler",
+        tensorboard_logs: Optional[str] = "logs/tensorboard",
+        checkpoints_dir: Optional[str] = "models/checkpoints",
         **trainer_init_kwargs: Dict[str, Any]
     ) -> None:
         if set_seed:

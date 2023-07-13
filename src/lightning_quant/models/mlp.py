@@ -20,6 +20,8 @@ import torch.nn.functional as F
 from torch import nn, optim
 from torchmetrics.functional import accuracy
 
+from lightning_quant.core.metrics import regularization
+
 
 class MLP(nn.Module):
     def __init__(
@@ -100,7 +102,7 @@ class ElasticNetMLP(L.LightningModule):
         y = y.to(torch.long)  # cross_entropy expects long int64
         y_hat = self(x)
         criterion = F.cross_entropy(y_hat, y)
-        loss = self.regularization(criterion)
+        loss = regularization(self.model, criterion, self.l1_strength, self.l2_strength)
 
         if stage == "training":
             self.log(f"{stage}_loss", loss)
@@ -123,14 +125,3 @@ class ElasticNetMLP(L.LightningModule):
             lr=self.lr,
         )
         return optimizer
-
-    def regularization(self, loss):
-        output_layer = -1
-        if self.hparams.l1_strength > 0:
-            l1_reg = self.model.sequential[output_layer].weight.abs().sum()
-            loss += self.l1_strength * l1_reg
-
-        if self.hparams.l2_strength > 0:
-            l2_reg = self.model.sequential[output_layer].weight.pow(2).sum()
-            loss += self.l2_strength * l2_reg
-        return loss

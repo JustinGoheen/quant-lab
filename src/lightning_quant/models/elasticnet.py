@@ -18,6 +18,8 @@ import torch.nn.functional as F
 from torch import nn, optim
 from torchmetrics.functional import accuracy
 
+from lightning_quant.core.metrics import regularization
+
 
 class ElasticNet(L.LightningModule):
     """Logistic Regression with L1 and L2 Regularization"""
@@ -44,9 +46,14 @@ class ElasticNet(L.LightningModule):
         self.l2_strength = l2_strength
         self.accuracy_task = accuracy_task
         self.num_classes = num_classes
-        self._dtype = getattr(torch, dtype)  # cannot set explicitly, leave as _dtype and not dtype
+        self._dtype = getattr(torch, dtype)
         self.optimizer = getattr(optim, optimizer)
-        self.model = nn.Linear(in_features=in_features, out_features=num_classes, bias=bias, dtype=self._dtype)
+        self.model = nn.Linear(
+            in_features=in_features,
+            out_features=num_classes,
+            bias=bias,
+            dtype=self._dtype,
+        )
         self.save_hyperparameters()
 
     def forward(self, x: torch.Tensor):
@@ -65,16 +72,26 @@ class ElasticNet(L.LightningModule):
         """consolidates common code for train, test, and validation steps"""
         x, y = batch
         x = x.to(self._dtype)
-        y = y.to(torch.long)  # cross_entropy expects long int64
+        y = y.to(torch.long)
         y_hat = self.model(x)
         criterion = F.cross_entropy(y_hat, y)
-        loss = self._regularization(criterion)
+        loss = regularization(
+            self.model,
+            criterion,
+            self.l1_strength,
+            self.l2_strength,
+        )
 
         if stage == "training":
             self.log(f"{stage}_loss", loss)
             return loss
         if stage in ["val", "test"]:
-            acc = accuracy(y_hat.argmax(dim=-1), y, task=self.accuracy_task, num_classes=self.num_classes)
+            acc = accuracy(
+                y_hat.argmax(dim=-1),
+                y,
+                task=self.accuracy_task,
+                num_classes=self.num_classes,
+            )
             self.log(f"{stage}_acc", acc)
             self.log(f"{stage}_loss", loss)
 
@@ -91,14 +108,3 @@ class ElasticNet(L.LightningModule):
             lr=self.lr,
         )
         return optimizer
-
-    def _regularization(self, loss):
-        """borrowed from lightning bolts"""
-        if self.hparams.l1_strength > 0:
-            l1_reg = self.model.weight.abs().sum()
-            loss += self.l1_strength * l1_reg
-
-        if self.hparams.l2_strength > 0:
-            l2_reg = self.model.weight.pow(2).sum()
-            loss += self.l2_strength * l2_reg
-        return loss

@@ -69,7 +69,13 @@ class QuantFabricTrainer:
         self.dataset = None
         self.model = None
 
-    def fit(self, model, dataset) -> None:
+    def fit(
+        self,
+        model,
+        dataset,
+        l1_strength: float = 0.1,
+        l2_strength: float = 0.1,
+    ) -> None:
         self.dataset = dataset
         self.dataloader = torch.utils.data.DataLoader(self.dataset)
 
@@ -89,7 +95,12 @@ class QuantFabricTrainer:
                         self.optimizer.zero_grad()
                         output = self.model(input)
                         criterion = F.cross_entropy(output, target.to(torch.long))
-                        self.loss = regularization(self.model, criterion)
+                        self.loss = regularization(
+                            self.model,
+                            criterion,
+                            l1_strength=l1_strength,
+                            l2_strength=l2_strength,
+                        )
                         self.fabric.log("loss", self.loss)
                         self.fabric.backward(self.loss)
                         self.optimizer.step()
