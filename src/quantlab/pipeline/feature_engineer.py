@@ -19,7 +19,7 @@ from pyarrow import parquet as pq
 from rich import print as rprint
 from rich.progress import Progress
 
-from lightning_quant.factors.ta import (
+from quantlab.factors.ta import (
     aroon_oscillator,
     expanding_rank,
     log_returns,

@@ -22,7 +22,7 @@ import pandas as pd
 from rich import print as rprint
 from rich.progress import Progress
 
-from lightning_quant.factors.ta import log_returns, strategy_metrics
+from quantlab.factors.ta import log_returns, strategy_metrics
 
 
 class BruteForceOptimizer:

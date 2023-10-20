@@ -17,10 +17,10 @@ from datetime import datetime
 from typing import List, Union
 from zoneinfo import ZoneInfo
 
-from lightning_quant.pipeline.acquisition_engineer import AcquisitionEngineer
-from lightning_quant.pipeline.brute_optimizer import BruteForceOptimizer
-from lightning_quant.pipeline.feature_engineer import FeatureEngineer
-from lightning_quant.pipeline.label_engineer import LabelEngineer
+from quantlab.pipeline.acquisition_engineer import AcquisitionEngineer
+from quantlab.pipeline.brute_optimizer import BruteForceOptimizer
+from quantlab.pipeline.feature_engineer import FeatureEngineer
+from quantlab.pipeline.label_engineer import LabelEngineer
 
 
 class QuantAgent(FeatureEngineer, AcquisitionEngineer, LabelEngineer, BruteForceOptimizer):

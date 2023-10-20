@@ -1,4 +1,4 @@
-# Lightning Quant
+# Quant Lab
 
 <!-- # Copyright Justin R. Goheen.
 #
@@ -14,13 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License. -->
 
-Lightning Quant is a library for training algorithmic trading agents with [Lightning AI](https://lightning.ai/) [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/) and [Lightning Fabric](https://lightning.ai/docs/fabric/stable/), along with the following ecosystem projects:
+Lightning Quant is a library for training algorithmic trading agents with [Lightning AI](https://lightning.ai/) and [PyTorch Lightning](https://lightning.ai/docs/pytorch/stable/) and [Lightning Fabric](https://lightning.ai/docs/fabric/stable/).
 
-- [neuralforecast](https://github.com/Nixtla/neuralforecast)
-- [pytorch-forecasting](https://pytorch-forecasting.readthedocs.io/en/stable/)
-- [SheepRL](https://github.com/Eclectic-Sheep/sheeprl)
-
-Lightning AI's PyTorch Lightning and Lightning Fabric are agnostic to the market broker and data source. One needs only to acquire and preprocess the desired market data and then construct the requisite PyTorch DataLoaders and LightningDataModule for the PyTorch Lightning Trainer or Lightning Fabric training loop that will be used with the bespoke PyTorch model, a SheepRL algorithm, or a neuralforecast model.
+Lightning AI's PyTorch Lightning and Lightning Fabric are agnostic to the market broker and data source. One needs only to acquire and preprocess the desired market data and then construct the requisite PyTorch DataLoaders and LightningDataModule for the PyTorch Lightning Trainer.
 
 [Alpaca Markets](https://alpaca.markets/) is used to fetch the historical data for the exercise.
 
@@ -60,7 +56,7 @@ conda create -n lit-quant python=3.10 -y
 conda activate lit-quant
 ```
 
-Then, install an editable version of lightning-quant with:
+Then, install an editable version of quant-lab with:
 
 ```sh
 pip install -e .
@@ -127,7 +123,7 @@ pip install TA-lib
 
 > **Note**
 >
-> The instructions shown below uses the lightning-quant path as a custom PREFIX
+> The instructions shown below uses the quant-lab path as a custom PREFIX
 
 To install the source version in Linux, do the following:
 
@@ -138,7 +134,7 @@ wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
 tar -xzf ta-lib-0.4.0-src.tar.gz
 # remove the zipped package
 rm -rf http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
-# create a custom prefix as the path to lightning-quant
+# create a custom prefix as the path to quant-lab
 export TALIB_PREFIX=$PWD/.venv/ctalib
 # change directoy into the unzipped package
 cd ta-lib/
@@ -150,12 +146,12 @@ export TA_INCLUDE_PATH=$TALIB_PREFIX/include
 export TA_LIBRARY_PATH=$TALIB_PREFIX/lib
 ```
 
-Navigate back to root directory of lightning-quant and do the following:
+Navigate back to root directory of quant-lab and do the following:
 
 ```sh
 # activate the venv and install
 cd ..
-# ensure you are in lightning-quant
+# ensure you are in quant-lab
 pwd
 # if in lightning quant, proceed
 git clone https://github.com/TA-Lib/ta-lib-python.git
@@ -163,13 +159,13 @@ source .venv/bin/activate
 pip install ta-lib-python/
 ```
 
-## Using Lightning-Quant
+## Using Quant Lab
 
 ### Data Prep
 
-Lightning-Quant provides a CLI, `quant` built with [Click]().
+quantlab provides a CLI, `quant` built with [Click]().
 
-![](docs/assets/lightning-quant-run.png)
+![](docs/assets/quant-lab-run.png)
 
 To run data acquisition, feature engineering, brute force optimization, and label generation at one time, do:
 
@@ -177,7 +173,7 @@ To run data acquisition, feature engineering, brute force optimization, and labe
 quant run agent --key-YOUR-ALPACA-KEY --secret=YOUR-ALPACA-SECRET-KEY --symbol=SPY
 ```
 
-Alternatively, you can create a .env file and lightning-quant will automatically load the provided environment variables for you. And then use the following in terminal:
+Alternatively, you can create a .env file and quantlab will automatically load the provided environment variables for you. And then use the following in terminal:
 
 ```sh
 quant run agent --symbol=SPY --tasks=all

@@ -135,6 +135,9 @@ dmypy.json
 # DS store
 .DS_Store
 
+# ruff
+.ruff_cache
+
 # VS Code
 *.code-workspace
 .vscode
@@ -149,7 +152,7 @@ ta-lib*
 logs
 
 # dev checkpoints
-models/checkpoints
+models
 
 # notebooks
 notebooks

@@ -20,9 +20,9 @@ rootdir = Path(__file__).parent
 long_description = (rootdir / "README.md").read_text()
 
 setup(
-    name="lightning_quant",
+    name="quantlab",
     package_dir={"": "src"},
-    packages=["lightning_quant"],
+    packages=["quantlab"],
     version="0.0.1",
     description="",
     long_description=long_description,

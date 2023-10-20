@@ -18,7 +18,7 @@ import os
 from lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset, random_split, WeightedRandomSampler
 
-from lightning_quant.data.dataset import MarketDataset
+from quantlab.data.dataset import MarketDataset
 
 NUMWORKERS = int(multiprocessing.cpu_count() // 2)
 

@@ -4,7 +4,7 @@ authors:
   - family-names: lastName
     given-names: firstName
   - name: "FirstName LastName"
-title: "lightning_quant"
+title: "quantlab"
 version: 0.0.1
 date-released: 2022-08-06
 license: "Apache-2.0"
